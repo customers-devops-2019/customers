@@ -52,7 +52,7 @@ Read customer data from the customer database. For now, it will only return a ba
 GET    /customers/123
 ```
 
-#### Test for Create
+#### Test for Read
 ```
 GET    /customers/123
 
@@ -68,7 +68,7 @@ Update customer data from the customer database. For now, it will only return a 
 PUT    /customers/123
 ```
 
-#### Test for Create
+#### Test for Update
 ```
 PUT    /customers/123
 
@@ -84,7 +84,7 @@ Delete customer data from the customer database. For now, it will only return a 
 DELETE    /customers/123
 ```
 
-#### Test for Create
+#### Test for Delete
 ```
 DELETE    /customers/123
 

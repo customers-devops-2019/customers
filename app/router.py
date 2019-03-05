@@ -43,6 +43,15 @@ def delete_customer(customer_id):
 
     return jsonify(data='You executed the delete route'), status.HTTP_200_OK
 
+#####################################################################
+# CREATE Customer by ID
+######################################################################
+@app.route('/customers/<customer_id>', methods=['POST'])
+def create_customer(customer_id):
+
+    return jsonify(data='You executed the create route'), status.HTTP_200_OK
+
+
 ######################################################################
 #   M A I N
 ######################################################################

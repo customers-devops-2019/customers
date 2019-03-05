@@ -35,6 +35,14 @@ def put_customer(customer_id):
 
     return jsonify(data='You executed the update route'), status.HTTP_200_OK
 
+#####################################################################
+# DELETE Customer by ID
+######################################################################
+@app.route('/customers/<customer_id>', methods=['DELETE'])
+def delete_customer(customer_id):
+
+    return jsonify(data='You executed the delete route'), status.HTTP_200_OK
+
 ######################################################################
 #   M A I N
 ######################################################################

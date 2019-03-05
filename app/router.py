@@ -16,7 +16,7 @@ app = Flask(__name__)
 ######################################################################
 @app.route('/')
 def index():
-        
+
     return "<h1>Welcome to the Customers web service<h1>", status.HTTP_200_OK
 
 ######################################################################
@@ -26,6 +26,14 @@ def index():
 def get_customer(customer_id):
 
     return jsonify(data='You executed the read route'), status.HTTP_200_OK
+
+######################################################################
+# PUT Customer by ID
+######################################################################
+@app.route('/customers/<customer_id>', methods=['PUT'])
+def put_customer(customer_id):
+
+    return jsonify(data='You executed the update route'), status.HTTP_200_OK
 
 ######################################################################
 #   M A I N

@@ -11,9 +11,9 @@ class CustomerFactory(factory.Factory):
     class Meta:
         model = Customer
     id = factory.Sequence(lambda n: n)
-    name = factory.Faker('John Doe')
-    email = FuzzyChoice(choices=['iphone_hacker@gmail.com',
-                                 'gold_to_ship@prince.com', 'ubreakifix@nsa.org'])
+    name = factory.Faker('first_name')
+    email = FuzzyChoice(choices=['fake1@email.com',
+                                 'fake2@email.com', 'fake3@email.com', 'fake12@email.com', 'fake23@email.com'])
 
 
 if __name__ == '__main__':

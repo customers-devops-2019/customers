@@ -43,17 +43,17 @@ class TestCustomers(unittest.TestCase):
 
     def test_create_a_customer(self):
         """ Create a customer and assert that it exists """
-        customer = Customer(name="Tim Apple", email="iphone_hacker@gmail.com")
+        customer = Customer(name="John Doe", email="fake1@email.com")
         self.assertTrue(customer != None)
         self.assertEqual(customer.id, None)
-        self.assertEqual(customer.name, "Tim Apple")
-        self.assertEqual(customer.email, "iphone_hacker@gmail.com")
+        self.assertEqual(customer.name, "John Doe")
+        self.assertEqual(customer.email, "fake1@email.com")
 
     def test_add_a_customer(self):
         """ Create a customer and add it to the database """
         customers = Customer.all()
         self.assertEqual(customers, [])
-        customer = Customer(name="Tim Apple", email="iphone_hacker@gmail.com")
+        customer = Customer(name="John Doe", email="fake1@email.com")
         self.assertTrue(customer != None)
         self.assertEqual(customer.id, None)
         customer.save()

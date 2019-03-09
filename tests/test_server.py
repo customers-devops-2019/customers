@@ -61,7 +61,7 @@ class TestCustomerServer(unittest.TestCase):
                              'Could not create test customer')
             new_customer = resp.get_json()
             test_customer.id = new_customer['id']
-            customer.append(test_customer)
+            customers.append(test_customer)
         return customers
 
     def test_index(self):

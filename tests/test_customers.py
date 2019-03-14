@@ -62,6 +62,14 @@ class TestCustomers(unittest.TestCase):
         customers = Customer.all()
         self.assertEqual(len(customers), 1)
 
+    def test_delete_a_customer(self):
+        """ Delete a customer """
+        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer.save()
+        self.assertEqual(len(customer.all()), 1)
+        # delete the pet and make sure it isn't in the database
+        customer.delete()
+        self.assertEqual(len(customer.all()), 0)
 
 ######################################################################
 #   M A I N

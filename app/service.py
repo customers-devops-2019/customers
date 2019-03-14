@@ -164,8 +164,19 @@ def create_customers():
 ######################################################################
 @app.route('/customers/<int:customer_id>', methods=['PUT'])
 def update_customers(customer_id):
-
-    return jsonify(data='You executed the update route'), status.HTTP_200_OK
+    """
+    Update a customer
+    This endpoint will update a customer based on the body that is posted
+    """
+    app.logger.info('Request to update customer with id: %s', customer_id)
+    check_content_type('application/json')
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound("Customer with id '{}' was not found.".format(customer_id))
+    customer.deserialize(request.get_json())
+    customer.id = customer_id
+    customer.save()
+    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################

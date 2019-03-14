@@ -116,6 +116,26 @@ class TestCustomerServer(unittest.TestCase):
         self.assertEqual(new_customer['name'], test_customer.name, "Names do not match")
         self.assertEqual(new_customer['email'], test_customer.email, "Emails do not match")
 
+    def test_update_customer(self):
+        """ Update an existing Customer """
+        # create a customer to update
+        test_customer = CustomerFactory()
+        resp = self.app.post('/customers',
+                             json=test_customer.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the customer
+        new_customer = resp.get_json()
+        new_customer['name'] = 'Isabel'
+        resp = self.app.put('/customers/{}'.format(new_customer['id']),
+                            json=new_customer,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_customer = resp.get_json()
+        self.assertEqual(updated_customer['name'], 'Isabel')
+
+
     # @patch('app.service.Pet.find_by_name')
     # def test_bad_request(self, bad_request_mock):
     #     """ Test a Bad Request error from Find By Name """

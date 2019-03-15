@@ -135,6 +135,31 @@ class TestCustomerServer(unittest.TestCase):
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer['name'], 'Isabel')
 
+    def test_delete_pet(self):
+        """ Delete a Customer """
+        test_customer = self._create_customers(1)[0]
+        resp = self.app.delete('/customers/{}'.format(test_customer.id),
+                               content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        # make sure they are deleted
+        resp = self.app.get('/customers/{}'.format(test_customer.id),
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_pet_list_by_category(self):
+        """ Query Customer by Email """
+        customers = self._create_customers(10)
+        test_email = customers[0].email
+        email_customers = [customer for customer in customers if customer.email == test_email]
+        resp = self.app.get('/customers',
+                            query_string='email={}'.format(test_email))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), len(email_customers))
+        # check the data just to be sure
+        for customer in data:
+            self.assertEqual(customer['email'], test_email)
 
     # @patch('app.service.Pet.find_by_name')
     # def test_bad_request(self, bad_request_mock):

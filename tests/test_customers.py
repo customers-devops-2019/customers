@@ -78,14 +78,69 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(customers[0].name, "Isabel")
 
     def test_delete_a_customer(self):
-        """ Delete a customer """
+        """ Delete a Customer """
         customer = Customer(name="John Doe", email="fake1@email.com")
         customer.save()
         self.assertEqual(len(customer.all()), 1)
         # delete the pet and make sure it isn't in the database
         customer.delete()
         self.assertEqual(len(customer.all()), 0)
-        
+
+    def test_serialize_a_customer(self):
+        """ Test serialization of a Customer """
+        customer = Customer(name="Tim", email="fake1@email.com")
+        data = customer.serialize()
+        self.assertNotEqual(data, None)
+        self.assertIn('id', data)
+        self.assertEqual(data['id'], None)
+        self.assertIn('name', data)
+        self.assertEqual(data['name'], "Tim")
+        self.assertIn('email', data)
+        self.assertEqual(data['email'], "fake1@email.com")
+
+    def test_deserialize_a_customer(self):
+        """ Test deserialization of a Customer """
+        data = {"id": 1, "name": "Tim", "email": "fake1@email.com"}
+        customer = Customer()
+        customer.deserialize(data)
+        self.assertNotEqual(customer, None)
+        self.assertEqual(customer.id, None)
+        self.assertEqual(customer.name, "Tim")
+        self.assertEqual(customer.email, "fake1@email.com")
+
+    def test_deserialize_bad_data(self):
+        """ Test deserialization of bad data """
+        data = "this is not a dictionary"
+        customer = Customer()
+        self.assertRaises(DataValidationError, customer.deserialize, data)
+
+    def test_find_customer(self):
+        """ Find a Customer by ID """
+        Customer(name="Tim", email="fake1@email.com").save()
+        newCustomer = Customer(name="Tim", email="fake1@email.com")
+        newCustomer.save()
+        customer = Customer.find(newCustomer.id)
+        self.assertIsNot(customer, None)
+        self.assertEqual(customer.id, newCustomer.id)
+        self.assertEqual(customer.name, "Tim")
+        self.assertEqual(customer.email, "fake1@email.com")
+
+    def test_find_by_email(self):
+        """ Find Customers by Email """
+        Customer(name="Tim", email="fake1@email.com").save()
+        Customer(name="Sarah", email="fake2@email.com").save()
+        customers = Customer.find_by_email("fake1@email.com")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].name, "Tim")
+
+    def test_find_by_name(self):
+        """ Find a Customer by Name """
+        Customer(name="Tim", email="fake1@email.com").save()
+        Customer(name="Sarah", email="fake2@email.com").save()
+        customers = Customer.find_by_name("Tim")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].name, "Tim")
+
 
 ######################################################################
 #   M A I N

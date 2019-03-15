@@ -182,15 +182,15 @@ def update_customers(customer_id):
 ######################################################################
 # DELETE A CUSTOMER
 ######################################################################
-@app.route('/custoemrs/<int:customer_id>', methods=['DELETE'])
-def delete_customers(id):
-
+@app.route('/customers/<int:customer_id>', methods=['DELETE'])
+def delete_customers(customer_id):
     """
     Delete a Customer
-    This endpoint will delete a Customer based the data in the body that is posted
+
+    This endpoint will delete a Customer based the id specified in the path
     """
-    app.logger.info('Request to delete customer with id: %s',id)
-    customer = customer.find(id)
+    app.logger.info('Request to delete customer with id: %s', customer_id)
+    customer = Customer.find(customer_id)
     if customer:
         customer.delete()
     return make_response('', status.HTTP_204_NO_CONTENT)

@@ -62,6 +62,21 @@ class TestCustomers(unittest.TestCase):
         customers = Customer.all()
         self.assertEqual(len(customers), 1)
 
+    def test_update_a_customer(self):
+        """ Update a Customer """
+        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer.save()
+        self.assertEqual(customer.id, 1)
+        # Change it an save it
+        customer.name = "Isabel"
+        customer.save()
+        self.assertEqual(customer.id, 1)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        customers = customer.all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].name, "Isabel")
+
     def test_delete_a_customer(self):
         """ Delete a customer """
         customer = Customer(name="John Doe", email="fake1@email.com")
@@ -70,6 +85,7 @@ class TestCustomers(unittest.TestCase):
         # delete the pet and make sure it isn't in the database
         customer.delete()
         self.assertEqual(len(customer.all()), 0)
+        
 
 ######################################################################
 #   M A I N

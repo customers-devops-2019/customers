@@ -183,9 +183,17 @@ def update_customers(customer_id):
 # DELETE A CUSTOMER
 ######################################################################
 @app.route('/custoemrs/<int:customer_id>', methods=['DELETE'])
-def delete_customers(customer_id):
+def delete_customers(id):
 
-    return jsonify(data='You executed the delete route'), status.HTTP_200_OK
+    """
+    Delete a Customer
+    This endpoint will delete a Customer based the data in the body that is posted
+    """
+    app.logger.info('Request to delete customer with id: %s',id)
+    customer = customer.find(id)
+    if customer:
+        customer.delete()
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

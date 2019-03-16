@@ -116,7 +116,7 @@ class TestCustomerServer(unittest.TestCase):
         self.assertEqual(new_customer['name'], test_customer.name, "Names do not match")
         self.assertEqual(new_customer['email'], test_customer.email, "Emails do not match")
 
-    def test_update_customer(self):
+    def test_update_customer_name(self):
         """ Update an existing Customer """
         # create a customer to update
         test_customer = CustomerFactory()
@@ -134,6 +134,46 @@ class TestCustomerServer(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer['name'], 'Isabel')
+
+    def test_update_customer_email(self):
+        """ Update an existing Customer """
+        # create a customer to update
+        test_customer = CustomerFactory()
+        resp = self.app.post('/customers',
+                             json=test_customer.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the customer
+        new_customer = resp.get_json()
+        new_customer['email'] = 'ethan@gmail.com'
+        resp = self.app.put('/customers/{}'.format(new_customer['id']),
+                            json=new_customer,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_customer = resp.get_json()
+        self.assertEqual(updated_customer['email'], 'ethan@gmail.com')
+
+    def test_update_customer_email_and_name(self):
+        """ Update an existing Customer """
+        # create a customer to update
+        test_customer = CustomerFactory()
+        resp = self.app.post('/customers',
+                             json=test_customer.serialize(),
+                             content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the customer
+        new_customer = resp.get_json()
+        new_customer['email'] = 'anthony@gmail.com'
+        new_customer['name'] = 'Ted'
+        resp = self.app.put('/customers/{}'.format(new_customer['id']),
+                            json=new_customer,
+                            content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_customer = resp.get_json()
+        self.assertEqual(updated_customer['email'], 'anthony@gmail.com')
+        self.assertEqual(updated_customer['name'], 'Ted')
 
     def test_delete_pet(self):
         """ Delete a Customer """

@@ -62,8 +62,8 @@ class TestCustomers(unittest.TestCase):
         customers = Customer.all()
         self.assertEqual(len(customers), 1)
 
-    def test_update_a_customer(self):
-        """ Update a Customer """
+    def test_update_a_customer_name(self):
+        """ Update a Customer name """
         customer = Customer(name="John Doe", email="fake1@email.com")
         customer.save()
         self.assertEqual(customer.id, 1)
@@ -75,6 +75,38 @@ class TestCustomers(unittest.TestCase):
         # but the data did change
         customers = customer.all()
         self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].name, "Isabel")
+
+    def test_update_a_customer_email(self):
+        """ Update a Customer email """
+        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer.save()
+        self.assertEqual(customer.id, 1)
+        # Change it an save it
+        customer.email = "ethan@gmail.com"
+        customer.save()
+        self.assertEqual(customer.id, 1)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        customers = customer.all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].email, "ethan@gmail.com")
+
+    def test_update_a_customer_email_and_name(self):
+        """ Update a Customer email and name"""
+        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer.save()
+        self.assertEqual(customer.id, 1)
+        # Change it an save it
+        customer.email = "ethan@gmail.com"
+        customer.name = "Isabel"
+        customer.save()
+        self.assertEqual(customer.id, 1)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        customers = customer.all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].email, "ethan@gmail.com")
         self.assertEqual(customers[0].name, "Isabel")
 
     def test_delete_a_customer(self):

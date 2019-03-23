@@ -87,7 +87,7 @@ class TestCustomerServer(unittest.TestCase):
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data['name'], test_customer.name)
+        self.assertEqual(data['firstname'], test_customer.firstname)
 
     def test_get_customer_not_found(self):
         """ Get a Customer thats not found """
@@ -106,15 +106,32 @@ class TestCustomerServer(unittest.TestCase):
         self.assertTrue(location != None)
         # Check the data is correct
         new_customer = resp.get_json()
-        self.assertEqual(new_customer['name'], test_customer.name, "Names do not match")
+        self.assertEqual(new_customer['firstname'], test_customer.firstname, "First name does not match")
+        self.assertEqual(new_customer['lastname'], test_customer.lastname, "Last name does not match")
         self.assertEqual(new_customer['email'], test_customer.email, "Emails do not match")
+        self.assertEqual(new_customer['subscribed'], test_customer.subscribed, "Subscribed does not match")
+        self.assertEqual(new_customer['address']['address1'], test_customer.address1, "Address1 do not match")
+        self.assertEqual(new_customer['address']['address2'], test_customer.address2, "Address2 do not match")
+        self.assertEqual(new_customer['address']['city'], test_customer.city, "City do not match")
+        self.assertEqual(new_customer['address']['province'], test_customer.province, "Province do not match")
+        self.assertEqual(new_customer['address']['country'], test_customer.country, "Country do not match")
+        self.assertEqual(new_customer['address']['zip'], test_customer.zip, "Zip do not match")
+
         # Check that the location header was correct
         resp = self.app.get(location,
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_customer = resp.get_json()
-        self.assertEqual(new_customer['name'], test_customer.name, "Names do not match")
+        self.assertEqual(new_customer['firstname'], test_customer.firstname, "First name does not match")
+        self.assertEqual(new_customer['lastname'], test_customer.lastname, "Last name does not match")
         self.assertEqual(new_customer['email'], test_customer.email, "Emails do not match")
+        self.assertEqual(new_customer['subscribed'], test_customer.subscribed, "Subscribed does not match")
+        self.assertEqual(new_customer['address']['address1'], test_customer.address1, "Address1 do not match")
+        self.assertEqual(new_customer['address']['address2'], test_customer.address2, "Address2 do not match")
+        self.assertEqual(new_customer['address']['city'], test_customer.city, "City do not match")
+        self.assertEqual(new_customer['address']['province'], test_customer.province, "Province do not match")
+        self.assertEqual(new_customer['address']['country'], test_customer.country, "Country do not match")
+        self.assertEqual(new_customer['address']['zip'], test_customer.zip, "Zip do not match")
 
     def test_update_customer_name(self):
         """ Update an existing Customer """
@@ -127,16 +144,16 @@ class TestCustomerServer(unittest.TestCase):
 
         # update the customer
         new_customer = resp.get_json()
-        new_customer['name'] = 'Isabel'
+        new_customer['firstname'] = 'Isabel'
         resp = self.app.put('/customers/{}'.format(new_customer['id']),
                             json=new_customer,
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_customer = resp.get_json()
-        self.assertEqual(updated_customer['name'], 'Isabel')
+        self.assertEqual(updated_customer['firstname'], 'Isabel')
 
     def test_update_customer_email(self):
-        """ Update an existing Customer """
+        """ Update an existing Customer email """
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post('/customers',
@@ -155,7 +172,7 @@ class TestCustomerServer(unittest.TestCase):
         self.assertEqual(updated_customer['email'], 'ethan@gmail.com')
 
     def test_update_customer_email_and_name(self):
-        """ Update an existing Customer """
+        """ Update an existing Customer email and name """
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post('/customers',
@@ -166,14 +183,14 @@ class TestCustomerServer(unittest.TestCase):
         # update the customer
         new_customer = resp.get_json()
         new_customer['email'] = 'anthony@gmail.com'
-        new_customer['name'] = 'Ted'
+        new_customer['firstname'] = 'Ted'
         resp = self.app.put('/customers/{}'.format(new_customer['id']),
                             json=new_customer,
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer['email'], 'anthony@gmail.com')
-        self.assertEqual(updated_customer['name'], 'Ted')
+        self.assertEqual(updated_customer['firstname'], 'Ted')
 
     def test_delete_pet(self):
         """ Delete a Customer """

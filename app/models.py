@@ -22,8 +22,16 @@ Customer - A Customer who buys online
 
 Attributes:
 -----------
-name (string) - the name of the customer
-category (string) - the email
+firstname (string) - the first name of the customer
+lastname (string) - the last name of the customer
+email (string) - the email
+subscribed (boolean) - is customer subscribed
+address1 (string) - the address1
+address2 (string) - the address2
+city (string) - the city
+province (string) - the province
+country (string) - the country
+zip (string) - the zip code
 
 """
 import logging
@@ -50,8 +58,16 @@ class Customer(db.Model):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63))
+    firstname = db.Column(db.String(63))
+    lastname = db.Column(db.String(63))
     email = db.Column(db.String(63))
+    address1 = db.Column(db.String(63))
+    address2 = db.Column(db.String(63))
+    city = db.Column(db.String(63))
+    province = db.Column(db.String(63))
+    country = db.Column(db.String(63))
+    zip = db.Column(db.String(63))
+    subscribed = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return '<Customer %r>' % (self.name)
@@ -71,9 +87,20 @@ class Customer(db.Model):
 
     def serialize(self):
         """ Serializes a Customer into a dictionary """
-        return {"id": self.id,
-                "name": self.name,
-                "email": self.email}
+        return {
+            "id": self.id,
+            "firstname": self.firstname,
+            "lastname": self.lastname,
+            "email": self.email,
+            "subscribed": self.subscribed,
+            "address": {
+                "address1": self.address1,
+                "address2": self.address2,
+                "city": self.city,
+                "province": self.province,
+                "country": self.country,
+                "zip": self.zip
+            }}
 
     def deserialize(self, data):
         """
@@ -83,8 +110,16 @@ class Customer(db.Model):
             data (dict): A dictionary containing the Customer data
         """
         try:
-            self.name = data['name']
+            self.firstname = data['firstname']
+            self.lastname = data['lastname']
             self.email = data['email']
+            self.subscribed = data['subscribed']
+            self.address1 = data['address']['address1']
+            self.address2 = data['address']['address2']
+            self.city = data['address']['city']
+            self.province = data['address']['province']
+            self.country = data['address']['country']
+            self.zip = data['address']['zip']
         except KeyError as error:
             raise DataValidationError('Invalid customer: missing ' + error.args[0])
         except TypeError as error:
@@ -121,14 +156,24 @@ class Customer(db.Model):
         return cls.query.get_or_404(customer_id)
 
     @classmethod
-    def find_by_name(cls, name):
-        """ Returns all Customers with the given name
+    def find_by_first_name(cls, firstname):
+        """ Returns all Customers with the given first name
 
         Args:
-            name (string): the name of the Customers you want to match
+            firstname (string): the first name of the Customers you want to match
         """
-        cls.logger.info('Processing name query for %s ...', name)
-        return cls.query.filter(cls.name == name)
+        cls.logger.info('Processing first name query for %s ...', firstname)
+        return cls.query.filter(cls.firstname == firstname)
+
+    @classmethod
+    def find_by_last_name(cls, lastname):
+        """ Returns all Customers with the given last name
+
+        Args:
+            lastname (string): the last name of the Customers you want to match
+        """
+        cls.logger.info('Processing last name query for %s ...', lastname)
+        return cls.query.filter(cls.lastname == lastname)
 
     @classmethod
     def find_by_email(cls, email):
@@ -139,3 +184,83 @@ class Customer(db.Model):
         """
         cls.logger.info('Processing email query for %s ...', email)
         return cls.query.filter(cls.email == email)
+
+    @classmethod
+    def find_by_subscribed(cls):
+        """ Returns all of the Customers who are subscribed
+
+        Args:
+            none
+        """
+        cls.logger.info('Processing subscription query ...',)
+        return cls.query.filter(cls.subscribed == True)
+
+    @classmethod
+    def find_by_address1(cls, address1):
+        """ Returns all of the Customers with a address1
+
+        Args:
+            address1 (string): the address1 of the Customer you want to match
+        """
+        cls.logger.info('Processing address1 query for %s ...', address1)
+        return cls.query.filter(cls.address1 == address1)
+
+    @classmethod
+    def find_by_address2(cls, address2):
+        """ Returns all of the Customers with a address2
+
+        Args:
+            address2 (string): the address2 of the Customer you want to match
+        """
+        cls.logger.info('Processing address2 query for %s ...', address2)
+        return cls.query.filter(cls.address2 == address2)
+
+    @classmethod
+    def find_by_email(cls, email):
+        """ Returns all of the Customers with a email
+
+        Args:
+            email (string): the email of the Customer you want to match
+        """
+        cls.logger.info('Processing email query for %s ...', email)
+        return cls.query.filter(cls.email == email)
+
+    @classmethod
+    def find_by_city(cls, city):
+        """ Returns all of the Customers with a city
+
+        Args:
+            city (string): the city of the Customer you want to match
+        """
+        cls.logger.info('Processing city query for %s ...', city)
+        return cls.query.filter(cls.city == city)
+
+    @classmethod
+    def find_by_province(cls, province):
+        """ Returns all of the Customers with a province
+
+        Args:
+            province (string): the province of the Customer you want to match
+        """
+        cls.logger.info('Processing province query for %s ...', province)
+        return cls.query.filter(cls.province == province)
+
+    @classmethod
+    def find_by_country(cls, country):
+        """ Returns all of the Customers with a country
+
+        Args:
+            country (string): the country of the Customer you want to match
+        """
+        cls.logger.info('Processing country query for %s ...', country)
+        return cls.query.filter(cls.country == country)
+
+    @classmethod
+    def find_by_zip(cls, zip):
+        """ Returns all of the Customers with a zip
+
+        Args:
+            zip (string): the zip of the Customer you want to match
+        """
+        cls.logger.info('Processing zip query for %s ...', zip)
+        return cls.query.filter(cls.zip == zip)

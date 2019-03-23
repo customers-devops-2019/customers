@@ -43,17 +43,25 @@ class TestCustomers(unittest.TestCase):
 
     def test_create_a_customer(self):
         """ Create a customer and assert that it exists """
-        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         self.assertTrue(customer != None)
         self.assertEqual(customer.id, None)
-        self.assertEqual(customer.name, "John Doe")
+        self.assertEqual(customer.firstname, "John")
+        self.assertEqual(customer.lastname, "Doe")
         self.assertEqual(customer.email, "fake1@email.com")
+        self.assertEqual(customer.subscribed, False)
+        self.assertEqual(customer.address1, "123 Main St")
+        self.assertEqual(customer.address2, "1B")
+        self.assertEqual(customer.city, "New York")
+        self.assertEqual(customer.province, "NY")
+        self.assertEqual(customer.country, "USA")
+        self.assertEqual(customer.zip, "12310")
 
     def test_add_a_customer(self):
         """ Create a customer and add it to the database """
         customers = Customer.all()
         self.assertEqual(customers, [])
-        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         self.assertTrue(customer != None)
         self.assertEqual(customer.id, None)
         customer.save()
@@ -64,7 +72,7 @@ class TestCustomers(unittest.TestCase):
 
     def test_update_a_customer_name(self):
         """ Update a Customer name """
-        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         customer.save()
         self.assertEqual(customer.id, 1)
         # Change it an save it
@@ -79,7 +87,7 @@ class TestCustomers(unittest.TestCase):
 
     def test_update_a_customer_email(self):
         """ Update a Customer email """
-        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         customer.save()
         self.assertEqual(customer.id, 1)
         # Change it an save it
@@ -94,7 +102,7 @@ class TestCustomers(unittest.TestCase):
 
     def test_update_a_customer_email_and_name(self):
         """ Update a Customer email and name"""
-        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         customer.save()
         self.assertEqual(customer.id, 1)
         # Change it an save it
@@ -111,7 +119,7 @@ class TestCustomers(unittest.TestCase):
 
     def test_delete_a_customer(self):
         """ Delete a Customer """
-        customer = Customer(name="John Doe", email="fake1@email.com")
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         customer.save()
         self.assertEqual(len(customer.all()), 1)
         # delete the pet and make sure it isn't in the database
@@ -120,25 +128,64 @@ class TestCustomers(unittest.TestCase):
 
     def test_serialize_a_customer(self):
         """ Test serialization of a Customer """
-        customer = Customer(name="Tim", email="fake1@email.com")
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         data = customer.serialize()
         self.assertNotEqual(data, None)
         self.assertIn('id', data)
         self.assertEqual(data['id'], None)
-        self.assertIn('name', data)
-        self.assertEqual(data['name'], "Tim")
+        self.assertIn('firstname', data)
+        self.assertEqual(data['firstname'], "John")
+        self.assertIn('lastname', data)
+        self.assertEqual(data['lastname'], "Doe")
         self.assertIn('email', data)
         self.assertEqual(data['email'], "fake1@email.com")
+        self.assertIn('subscribed', data)
+        self.assertEqual(data['subscribed'], False)
+        self.assertIn('address1', data["address"])
+        self.assertEqual(data['address']['address1'], "123 Main St")
+        self.assertIn('address2', data["address"])
+        self.assertEqual(data['address']['address2'], "1B")
+        self.assertIn('city', data["address"])
+        self.assertEqual(data['address']['city'], "New York")
+        self.assertIn('province', data["address"])
+        self.assertEqual(data['address']['province'], "NY")
+        self.assertIn('country', data["address"])
+        self.assertEqual(data['address']['country'], "USA")
+        self.assertIn('zip', data["address"])
+        self.assertEqual(data['address']['zip'], "12310")
+
 
     def test_deserialize_a_customer(self):
         """ Test deserialization of a Customer """
-        data = {"id": 1, "name": "Tim", "email": "fake1@email.com"}
+        data = {
+            "id":1,
+        	"firstname":"John",
+        	"lastname":"Doe",
+        	"email":"fake1@email.com",
+        	"subscribed": False,
+        	"address": {
+        		"address1": "123 Main St",
+        		"address2":"1B",
+        		"city":"New York",
+        		"province":"NY",
+        		"country":"USA",
+        		"zip":"12310"
+        	}
+        }
         customer = Customer()
         customer.deserialize(data)
         self.assertNotEqual(customer, None)
         self.assertEqual(customer.id, None)
-        self.assertEqual(customer.name, "Tim")
+        self.assertEqual(customer.firstname, "John")
+        self.assertEqual(customer.lastname, "Doe")
         self.assertEqual(customer.email, "fake1@email.com")
+        self.assertEqual(customer.subscribed, False)
+        self.assertEqual(customer.address1, "123 Main St")
+        self.assertEqual(customer.address2, "1B")
+        self.assertEqual(customer.city, "New York")
+        self.assertEqual(customer.province, "NY")
+        self.assertEqual(customer.country, "USA")
+        self.assertEqual(customer.zip, "12310")
 
     def test_deserialize_bad_data(self):
         """ Test deserialization of bad data """
@@ -148,30 +195,72 @@ class TestCustomers(unittest.TestCase):
 
     def test_find_customer(self):
         """ Find a Customer by ID """
-        Customer(name="Tim", email="fake1@email.com").save()
-        newCustomer = Customer(name="Tim", email="fake1@email.com")
+        customer = Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        newCustomer = Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310")
         newCustomer.save()
         customer = Customer.find(newCustomer.id)
         self.assertIsNot(customer, None)
         self.assertEqual(customer.id, newCustomer.id)
-        self.assertEqual(customer.name, "Tim")
+        self.assertEqual(customer.firstname, "John")
+        self.assertEqual(customer.lastname, "Doe")
         self.assertEqual(customer.email, "fake1@email.com")
+        self.assertEqual(customer.subscribed, False)
+        self.assertEqual(customer.address1, "123 Main St")
+        self.assertEqual(customer.address2, "1B")
+        self.assertEqual(customer.city, "New York")
+        self.assertEqual(customer.province, "NY")
+        self.assertEqual(customer.country, "USA")
+        self.assertEqual(customer.zip, "12310")
+
 
     def test_find_by_email(self):
         """ Find Customers by Email """
-        Customer(name="Tim", email="fake1@email.com").save()
-        Customer(name="Sarah", email="fake2@email.com").save()
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
         customers = Customer.find_by_email("fake1@email.com")
         self.assertEqual(customers[0].email, "fake1@email.com")
-        self.assertEqual(customers[0].name, "Tim")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
 
-    def test_find_by_name(self):
-        """ Find a Customer by Name """
-        Customer(name="Tim", email="fake1@email.com").save()
-        Customer(name="Sarah", email="fake2@email.com").save()
-        customers = Customer.find_by_name("Tim")
+
+    def test_find_by_first_name(self):
+        """ Find a Customer by First Name """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_first_name("John")
         self.assertEqual(customers[0].email, "fake1@email.com")
-        self.assertEqual(customers[0].name, "Tim")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
+    def test_find_by_last_name(self):
+        """ Find a Customer by Last Name """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_last_name("Doe")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
 
 
 ######################################################################

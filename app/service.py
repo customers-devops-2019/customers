@@ -108,16 +108,75 @@ def list_customers():
     app.logger.info('Request for Customer list')
     customers = []
     email = request.args.get('email')
-    name = request.args.get('name')
+    firstname = request.args.get('firstname')
+    lastname = request.args.get('lastname')
+    subscribed = request.args.get('subscribed')
+    address1 = request.args.get('address1')
+    address2 = request.args.get('address2')
+    city = request.args.get('city')
+    province = request.args.get('province')
+    country = request.args.get('country')
+    zip = request.args.get('zip')
+
     if email:
         customers = Customer.find_by_email(email)
-    elif name:
-        customers = Customer.find_by_name(name)
+    elif firstname:
+        customers = Customer.find_by_first_name(firstname)
+    elif lastname:
+        customers = Customer.find_by_last_name(lastname)
+    elif subscribed:
+        customers = Customer.find_by_subscribed(subscribed)
+    elif address1:
+        customers = Customer.find_by_address1(address1)
+    elif address2:
+        customers = Customer.find_by_address2(address2)
+    elif city:
+        customers = Customer.find_by_city(city)
+    elif province:
+        customers = Customer.find_by_province(province)
+    elif country:
+        customers = Customer.find_by_country(country)
+    elif zip:
+        customers = Customer.find_by_zip(zip)
     else:
         customers = Customer.all()
 
     results = [customer.serialize() for customer in customers]
     return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
+# UNSCUBSCRIBE A CUSTOMER
+######################################################################
+@app.route('/customers/<int:customer_id>/unsubscribe', methods=['PUT'])
+def put_unsubscribe_customer(customer_id):
+    """
+    Unsubscribe a single Customer
+
+    This endpoint will return a Customer based on it's id
+    """
+    app.logger.info('Request for customer address with id: %s', customer_id)
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound("Customer with id '{}' was not found.".format(customer_id))
+    customer.subscribed = False
+    customer.save()
+    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# RETRIEVE A CUSTOMER ADDRESS
+######################################################################
+@app.route('/customers/<int:customer_id>/address', methods=['GET'])
+def get_customers_address(customer_id):
+    """
+    Retrieve a single Customer Address
+
+    This endpoint will return a Customer based on it's id
+    """
+    app.logger.info('Request for customer address with id: %s', customer_id)
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound("Customer with id '{}' was not found.".format(customer_id))
+    return make_response(jsonify(customer.serialize()["address"]), status.HTTP_200_OK)
 
 
 ######################################################################

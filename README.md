@@ -267,3 +267,23 @@ Excpected Status: 200
 ]
 
 ```
+### Read with Sub route
+Read specific data from the customer database with sub route.
+```
+GET    /customers/2/address
+```
+
+#### Test for Read with Sub route
+```
+GET    /customers/2/address
+
+{
+    "address1": "1 Second St",
+    "address2": "1B",
+    "city": "New York",
+    "country": "USA",
+    "province": "NY",
+    "zip": "24233"
+}
+
+```

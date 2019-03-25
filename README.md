@@ -198,7 +198,7 @@ Body:[
             "province": "NY",
             "zip": "24233"
         },
-        "email": "newemailaddress@email.com",
+        "email": "jdoe@email.com",
         "firstname": "John",
         "id": 2,
         "lastname": "Doe",

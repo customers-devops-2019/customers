@@ -262,6 +262,118 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(customers[0].country, "USA")
         self.assertEqual(customers[0].zip, "12310")
 
+    def test_find_by_address1(self):
+        """ Find Customers by address1 """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_address1("123 Main St")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
+    def test_find_by_address2(self):
+        """ Find Customers by address2 """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_address2("1B")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
+    def test_find_by_city(self):
+        """ Find Customers by city """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_city("New York")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
+    def test_find_by_province(self):
+        """ Find Customers by state(province) """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_province("NY")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
+    def test_find_by_country(self):
+        """ Find Customers by country """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_country("USA")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
+    def test_find_by_zip(self):
+        """ Find Customers by zip """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_zip("12310")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
+    def test_find_by_subscribed(self):
+        """ Find Customers by subscribed """
+        Customer(firstname="John", lastname="Doe", email="fake1@email.com", subscribed=False, address1="123 Main St", address2="1B", city="New York", country="USA", province="NY", zip="12310").save()
+        Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com", subscribed=False, address1="124 Main St", address2="1E", city="New York", country="USA", province="NY", zip="12310").save()
+        customers = Customer.find_by_subscribed(False)
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
+
 
 ######################################################################
 #   M A I N

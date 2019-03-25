@@ -49,8 +49,6 @@ Vagrant.configure(2) do |config|
     apt-get update
     apt-get install -y git python-pip python-dev build-essential
     apt-get -y autoremove
-    #pip install --upgrade pip
-    # Install app dependencies
     cd /vagrant
     pip install -r requirements.txt
   SHELL

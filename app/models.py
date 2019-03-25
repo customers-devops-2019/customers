@@ -186,14 +186,14 @@ class Customer(db.Model):
         return cls.query.filter(cls.email == email)
 
     @classmethod
-    def find_by_subscribed(cls):
+    def find_by_subscribed(cls,flag):
         """ Returns all of the Customers who are subscribed
 
         Args:
-            none
+            subscribed (assertTrue) : if the customer is subscribed to email list
         """
         cls.logger.info('Processing subscription query ...',)
-        return cls.query.filter(cls.subscribed == True)
+        return cls.query.filter(cls.subscribed == flag)
 
     @classmethod
     def find_by_address1(cls, address1):

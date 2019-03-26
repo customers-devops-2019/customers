@@ -36,14 +36,14 @@ def request_validation_error(error):
     return bad_request(error)
 
 
-@app.errorhandler(status.HTTP_400_BAD_REQUEST)
-def bad_request(error):
-    """ Handles bad reuests with 400_BAD_REQUEST """
-    message = error.message or str(error)
-    app.logger.warning(message)
-    return jsonify(status=status.HTTP_400_BAD_REQUEST,
-                   error='Bad Request',
-                   message=message), status.HTTP_400_BAD_REQUEST
+# @app.errorhandler(status.HTTP_400_BAD_REQUEST)
+# def bad_request(error):
+#     """ Handles bad reuests with 400_BAD_REQUEST """
+#     message = error.message or str(error)
+#     app.logger.warning(message)
+#     return jsonify(status=status.HTTP_400_BAD_REQUEST,
+#                    error='Bad Request',
+#                    message=message), status.HTTP_400_BAD_REQUEST
 
 
 @app.errorhandler(status.HTTP_404_NOT_FOUND)

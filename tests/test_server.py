@@ -106,32 +106,52 @@ class TestCustomerServer(unittest.TestCase):
         self.assertTrue(location != None)
         # Check the data is correct
         new_customer = resp.get_json()
-        self.assertEqual(new_customer['firstname'], test_customer.firstname, "First name does not match")
-        self.assertEqual(new_customer['lastname'], test_customer.lastname, "Last name does not match")
-        self.assertEqual(new_customer['email'], test_customer.email, "Emails do not match")
-        self.assertEqual(new_customer['subscribed'], test_customer.subscribed, "Subscribed does not match")
-        self.assertEqual(new_customer['address']['address1'], test_customer.address1, "Address1 do not match")
-        self.assertEqual(new_customer['address']['address2'], test_customer.address2, "Address2 do not match")
-        self.assertEqual(new_customer['address']['city'], test_customer.city, "City do not match")
-        self.assertEqual(new_customer['address']['province'], test_customer.province, "Province do not match")
-        self.assertEqual(new_customer['address']['country'], test_customer.country, "Country do not match")
-        self.assertEqual(new_customer['address']['zip'], test_customer.zip, "Zip do not match")
+        self.assertEqual(new_customer['firstname'], test_customer.firstname,
+                         "First name does not match")
+        self.assertEqual(new_customer['lastname'], test_customer.lastname,
+                         "Last name does not match")
+        self.assertEqual(new_customer['email'], test_customer.email,
+                         "Emails do not match")
+        self.assertEqual(new_customer['subscribed'], test_customer.subscribed,
+                         "Subscribed does not match")
+        self.assertEqual(new_customer['address']['address1'], test_customer.address1,
+                         "Address1 do not match")
+        self.assertEqual(new_customer['address']['address2'], test_customer.address2,
+                         "Address2 do not match")
+        self.assertEqual(new_customer['address']['city'], test_customer.city,
+                         "City do not match")
+        self.assertEqual(new_customer['address']['province'], test_customer.province,
+                         "Province do not match")
+        self.assertEqual(new_customer['address']['country'], test_customer.country,
+                         "Country do not match")
+        self.assertEqual(new_customer['address']['zip'], test_customer.zip,
+                         "Zip do not match")
 
         # Check that the location header was correct
         resp = self.app.get(location,
                             content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_customer = resp.get_json()
-        self.assertEqual(new_customer['firstname'], test_customer.firstname, "First name does not match")
-        self.assertEqual(new_customer['lastname'], test_customer.lastname, "Last name does not match")
-        self.assertEqual(new_customer['email'], test_customer.email, "Emails do not match")
-        self.assertEqual(new_customer['subscribed'], test_customer.subscribed, "Subscribed does not match")
-        self.assertEqual(new_customer['address']['address1'], test_customer.address1, "Address1 do not match")
-        self.assertEqual(new_customer['address']['address2'], test_customer.address2, "Address2 do not match")
-        self.assertEqual(new_customer['address']['city'], test_customer.city, "City do not match")
-        self.assertEqual(new_customer['address']['province'], test_customer.province, "Province do not match")
-        self.assertEqual(new_customer['address']['country'], test_customer.country, "Country do not match")
-        self.assertEqual(new_customer['address']['zip'], test_customer.zip, "Zip do not match")
+        self.assertEqual(new_customer['firstname'], test_customer.firstname,
+                         "First name does not match")
+        self.assertEqual(new_customer['lastname'], test_customer.lastname,
+                         "Last name does not match")
+        self.assertEqual(new_customer['email'], test_customer.email,
+                         "Emails do not match")
+        self.assertEqual(new_customer['subscribed'], test_customer.subscribed,
+                         "Subscribed does not match")
+        self.assertEqual(new_customer['address']['address1'], test_customer.address1,
+                         "Address1 do not match")
+        self.assertEqual(new_customer['address']['address2'], test_customer.address2,
+                         "Address2 do not match")
+        self.assertEqual(new_customer['address']['city'], test_customer.city,
+                         "City do not match")
+        self.assertEqual(new_customer['address']['province'], test_customer.province,
+                         "Province do not match")
+        self.assertEqual(new_customer['address']['country'], test_customer.country,
+                         "Country do not match")
+        self.assertEqual(new_customer['address']['zip'], test_customer.zip,
+                         "Zip do not match")
 
     def test_update_customer_name(self):
         """ Update an existing Customer """
@@ -235,7 +255,7 @@ class TestCustomerServer(unittest.TestCase):
         test_obj = test_customer.serialize()
         self.assertEqual(data, test_obj["address"])
 
-    def test_query_customer_list_by_email(self):
+    def test_query_customer_list_email(self):
         """ Query Customer by Email """
         customers = self._create_customers(10)
         test_email = customers[0].email
@@ -249,11 +269,12 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['email'], test_email)
 
-    def test_query_customer_list_by_firstname(self):
-        """ Query Customer by Firstname """
+    def test_query_customer_list_fname(self):
+        """ Query Customer by First name """
         customers = self._create_customers(10)
         test_firstname = customers[0].firstname
-        firstname_customers = [customer for customer in customers if customer.firstname == test_firstname]
+        firstname_customers = [customer for customer in customers
+                               if customer.firstname == test_firstname]
         resp = self.app.get('/customers',
                             query_string='firstname={}'.format(test_firstname))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -263,11 +284,12 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['firstname'], test_firstname)
 
-    def test_query_customer_list_by_lastname(self):
-        """ Query Customer by Lastname """
+    def test_query_customer_list_lname(self):
+        """ Query Customer by Last name """
         customers = self._create_customers(10)
         test_lastname = customers[0].lastname
-        lastname_customers = [customer for customer in customers if customer.lastname == test_lastname]
+        lastname_customers = [customer for customer in customers
+                              if customer.lastname == test_lastname]
         resp = self.app.get('/customers',
                             query_string='lastname={}'.format(test_lastname))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -277,12 +299,13 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['lastname'], test_lastname)
 
-    def test_query_customer_list_by_subscribed(self):
+    def test_query_customer_list_sub(self):
         """ Query Customer by Subscribed """
         customers = self._create_customers(10)
         test_subscribed = 0 if customers[0].subscribed == False else 1
         print("the subscribed output is  %s", test_subscribed)
-        subscribed_customers = [customer for customer in customers if customer.subscribed == test_subscribed]
+        subscribed_customers = [customer for customer in customers
+                                if customer.subscribed == test_subscribed]
         resp = self.app.get('/customers',
                             query_string='subscribed={}'.format(test_subscribed))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -292,7 +315,7 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['subscribed'], test_subscribed)
 
-    def test_query_customer_list_by_address1(self):
+    def test_query_customer_list_addr1(self):
         """ Query Customer by Address 1 """
         customers = self._create_customers(10)
         test_a1 = customers[0].address1
@@ -306,7 +329,7 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['address']['address1'], test_a1)
 
-    def test_query_customer_list_by_address2(self):
+    def test_query_customer_list_addr2(self):
         """ Query Customer by Address 2 """
         customers = self._create_customers(10)
         test_a2 = customers[0].address2
@@ -320,7 +343,7 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['address']['address2'], test_a2)
 
-    def test_query_customer_list_by_city(self):
+    def test_query_customer_list_city(self):
         """ Query Customer by City """
         customers = self._create_customers(10)
         test_city = customers[0].city
@@ -334,11 +357,12 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['address']['city'], test_city)
 
-    def test_query_customer_list_by_province(self):
+    def test_query_customer_list_prov(self):
         """ Query Customer by Province """
         customers = self._create_customers(10)
         test_province = customers[0].province
-        province_customers = [customer for customer in customers if customer.province == test_province]
+        province_customers = [customer for customer in customers
+                              if customer.province == test_province]
         resp = self.app.get('/customers',
                             query_string='province={}'.format(test_province))
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -348,7 +372,7 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['address']['province'], test_province)
 
-    def test_query_customer_list_by_country(self):
+    def test_query_customer_list_country(self):
         """ Query Customer by Country """
         customers = self._create_customers(10)
         test_country = customers[0].country
@@ -362,7 +386,7 @@ class TestCustomerServer(unittest.TestCase):
         for customer in data:
             self.assertEqual(customer['address']['country'], test_country)
 
-    def test_query_customer_list_by_zip(self):
+    def test_query_customer_list_zip(self):
         """ Query Customer by Zip """
         customers = self._create_customers(10)
         test_zi = customers[0].zip
@@ -386,7 +410,7 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.get('/customers/10')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_resource_not_found_on_update(self):
+    def test_resource_not_found_update(self):
         """ Test Error Update Not Found """
         # create a customer to update
         test_customer = CustomerFactory()

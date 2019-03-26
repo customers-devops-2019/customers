@@ -15,7 +15,8 @@ class CustomerFactory(factory.Factory):
     firstname = factory.Faker('first_name')
     lastname = factory.Faker('last_name')
     email = FuzzyChoice(choices=['fake1@email.com',
-                                 'fake2@email.com', 'fake3@email.com', 'fake12@email.com', 'fake23@email.com'])
+                                 'fake2@email.com', 'fake3@email.com',
+                                 'fake12@email.com', 'fake23@email.com'])
     subscribed = FuzzyChoice(choices=[True, False])
     number = factory.Faker('random_int')
     street = factory.Faker('street_name')
@@ -30,4 +31,4 @@ class CustomerFactory(factory.Factory):
 if __name__ == '__main__':
     for _ in range(10):
         customer = CustomerFactory()
-        print(custoemr.serialize())
+        print customer.serialize()

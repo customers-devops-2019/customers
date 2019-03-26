@@ -125,7 +125,7 @@ def list_customers():
     elif lastname:
         customers = Customer.find_by_last_name(lastname)
     elif subscribed:
-        customers = Customer.find_by_subscribed(subscribed)
+        customers = Customer.find_by_subscribed(subscribed.lower() in ('true', '1'))
     elif address1:
         customers = Customer.find_by_address1(address1)
     elif address2:

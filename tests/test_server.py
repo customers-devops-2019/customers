@@ -302,7 +302,7 @@ class TestCustomerServer(unittest.TestCase):
     def test_query_customer_list_sub(self):
         """ Query Customer by Subscribed """
         customers = self._create_customers(10)
-        test_subscribed = 0 if customers[0].subscribed == False else 1
+        test_subscribed = customers[0].subscribed
         print("the subscribed output is  %s", test_subscribed)
         subscribed_customers = [customer for customer in customers
                                 if customer.subscribed == test_subscribed]

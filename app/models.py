@@ -150,12 +150,6 @@ class Customer(db.Model):
         return cls.query.get(customer_id)
 
     @classmethod
-    def find_or_404(cls, customer_id):
-        """ Find a Customer by it's id """
-        cls.logger.info('Processing lookup or 404 for id %s ...', customer_id)
-        return cls.query.get_or_404(customer_id)
-
-    @classmethod
     def find_by_first_name(cls, firstname):
         """ Returns all Customers with the given first name
 

@@ -37,14 +37,11 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "~/.vimrc", destination: "~/.vimrc"
   end
 
-  # Windows users need to change the permission of files and directories
-  # so that nosetests runs without extra arguments.
-  # Mac users can comment this next line out
   config.vm.synced_folder ".", "/vagrant", mount_options: ["dmode=775,fmode=664"]
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
+  ######################################################################
+  # Setup a Python development environment
+  ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get install -y git python-pip python-dev build-essential
@@ -52,5 +49,21 @@ Vagrant.configure(2) do |config|
     cd /vagrant
     pip install -r requirements.txt
   SHELL
+
+  ######################################################################
+  # Add CouchDB docker container
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo mkdir -p /opt/couchdb/data
+    sudo chown vagrant:vagrant /opt/couchdb/data
+  SHELL
+
+  # Add CouchDB docker container
+  # docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=pass couchdb
+  config.vm.provision "docker" do |d|
+    d.pull_images "couchdb"
+    d.run "couchdb",
+      args: "--restart=always -d --name couchdb -p 5984:5984 -v /opt/couchdb/data:/opt/couchdb/data -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=pass"
+  end
 
 end

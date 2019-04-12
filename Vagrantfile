@@ -32,6 +32,11 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa"
   end
 
+  # Copy your IBM Clouid API Key if you have one
+  if File.exists?(File.expand_path("~/.bluemix/apiKey.json"))
+    config.vm.provision "file", source: "~/.bluemix/apiKey.json", destination: "~/.bluemix/apiKey.json"
+  end
+
   # Copy your ~/.vimrc file so that vi looks the same
   if File.exists?(File.expand_path("~/.vimrc"))
     config.vm.provision "file", source: "~/.vimrc", destination: "~/.vimrc"

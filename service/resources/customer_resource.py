@@ -28,7 +28,7 @@ class CustomerResource(Resource):
         This endpoint will return a Custoemr based on it's id
         """
         app.logger.info("Request to Retrieve a customer with id [%s]", customer_id)
-        customer = Custoemr.find(customer_id)
+        customer = Customer.find(customer_id)
         if not customer:
             abort(status.HTTP_404_NOT_FOUND, "Customer with id '{}' was not found.".format(customer_id))
         return customer.serialize(), status.HTTP_200_OK

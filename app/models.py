@@ -34,61 +34,101 @@ country (string) - the country
 zip (string) - the zip code
 
 """
+import os
+import json
 import logging
-from flask_sqlalchemy import SQLAlchemy
+from retry import retry
+from cloudant.client import Cloudant
+from cloudant.query import Query
+from requests import HTTPError, ConnectionError
 
-# Create the SQLAlchemy object to be initialized later in init_db()
-db = SQLAlchemy()
-
+# get configruation from enviuronment (12-factor)
+ADMIN_PARTY = os.environ.get('ADMIN_PARTY', 'False').lower() == 'true'
+CLOUDANT_HOST = os.environ.get('CLOUDANT_HOST', 'localhost')
+CLOUDANT_USERNAME = os.environ.get('CLOUDANT_USERNAME', 'admin')
+CLOUDANT_PASSWORD = os.environ.get('CLOUDANT_PASSWORD', 'pass')
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
 
 
-class Customer(db.Model):
+class Customer(object):
     """
     Class that represents a Customer
-
-    This version uses a relational database for persistence which is hidden
-    from us by SQLAlchemy's object relational mappings (ORM)
     """
     logger = logging.getLogger(__name__)
-    app = None
+    client = None   # cloudant.client.Cloudant
+    database = None # cloudant.database.CloudantDatabase
 
-    # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.String(63))
-    lastname = db.Column(db.String(63))
-    email = db.Column(db.String(63))
-    address1 = db.Column(db.String(63))
-    address2 = db.Column(db.String(63))
-    city = db.Column(db.String(63))
-    province = db.Column(db.String(63))
-    country = db.Column(db.String(63))
-    zip = db.Column(db.String(63))
-    subscribed = db.Column(db.Boolean, default=True)
+    def __init__(self, firstname=None, lastname=None, email=None, address1=None, address2=None, city=None, province=None, country=None, zip=None, subscribed=True):
+        """ Constructor """
+        self.id = None
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+        self.address1 = address1
+        self.address2 = address2
+        self.city = city
+        self.province = province
+        self.country = country
+        self.zip = zip
+        self.subscribed = subscribed
 
-    def __repr__(self):
-        return '<Customer %r>' % (self.name)
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
+    def create(self):
+        """
+        Creates a Customer in the database
+        """
+        if self.firstName is None:
+            raise DataValidationError('firstName attribute is not set')
+        try:
+            document = self.database.create_document(self.serialize())
+        except HTTPError as err:
+            Customer.logger.warning('Create failed: %s', err)
+            return
 
+        if document.exists():
+            self.id = document['_id']
+
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
+    def update(self):
+        """
+        Updates a Customer in the database
+        """
+        try:
+            document = self.database[self.id]
+        except KeyError:
+            document = None
+        if document:
+            document.update(self.serialize())
+            document.save()
+
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
     def save(self):
         """
         Saves a Customer to the data store
         """
-        if not self.id:
-            db.session.add(self)
-        db.session.commit()
+        if self.firstName is None:
+            raise DataValidationError('firstName attribute is not set')
+        if self.id:
+            self.update()
+        else:
+            self.create()
 
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
     def delete(self):
         """ Removes a Customer from the data store """
-        db.session.delete(self)
-        db.session.commit()
+        try:
+            document = self.database[self.id]
+        except KeyError:
+            document = None
+        if document:
+            document.delete()
 
     def serialize(self):
         """ Serializes a Customer into a dictionary """
-        return {
-            "id": self.id,
+        customer = {
             "firstname": self.firstname,
             "lastname": self.lastname,
             "email": self.email,
@@ -101,6 +141,9 @@ class Customer(db.Model):
                 "country": self.country,
                 "zip": self.zip
             }}
+        if self.id:
+            customer['_id'] = self.id
+        return customer
 
     def deserialize(self, data):
         """
@@ -125,136 +168,207 @@ class Customer(db.Model):
         except TypeError as error:
             raise DataValidationError('Invalid customer: body of request contained'
                                       'bad or no data')
+        if not self.id and '_id' in data:
+            self.id = data['_id']
+
         return self
 
-    @classmethod
-    def init_db(cls, app):
-        """ Initializes the database session """
-        cls.logger.info('Initializing database')
-        cls.app = app
-        # This is where we initialize SQLAlchemy from the Flask app
-        db.init_app(app)
-        app.app_context().push()
-        db.create_all()  # make our sqlalchemy tables
+######################################################################
+#  S T A T I C   D A T A B S E   M E T H O D S
+######################################################################
 
     @classmethod
+    def connect(cls):
+        """ Connect to the server """
+        cls.client.connect()
+
+    @classmethod
+    def disconnect(cls):
+        """ Disconnect from the server """
+        cls.client.disconnect()
+
+    @classmethod
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
+    def create_query_index(cls, field_name, order='asc'):
+        """ Creates a new query index for searching """
+        cls.database.create_query_index(index_name=field_name, fields=[{field_name: order}])
+
+    @classmethod
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
+    def remove_all(cls):
+        """ Removes all documents from the database (use for testing)  """
+        for document in cls.database:
+            document.delete()
+
+    @classmethod
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
     def all(cls):
-        """ Returns all of the Customers in the database """
-        cls.logger.info('Processing all Customers')
-        return cls.query.all()
+        """ Query that returns all Customers """
+        results = []
+        for doc in cls.database:
+            customer = Customer().deserialize(doc)
+            customer.id = doc['_id']
+            results.append(customer)
+        return results
+
+######################################################################
+#  F I N D E R   M E T H O D S
+######################################################################
 
     @classmethod
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
+    def find_by(cls, **kwargs):
+        """ Find records using selector """
+        query = Query(cls.database, selector=kwargs)
+        results = []
+        for doc in query.result:
+            customer = Customer()
+            customer.deserialize(doc)
+            results.append(customer)
+        return results
+
+    @classmethod
+    @retry(HTTPError, delay=1, backoff=2, tries=5)
     def find(cls, customer_id):
-        """ Finds a Customer by it's ID """
-        cls.logger.info('Processing lookup for id %s ...', customer_id)
-        return cls.query.get(customer_id)
+        """ Query that finds Customers by their ID """
+        try:
+            document = cls.database[customer_id]
+            return Customer().deserialize(document)
+        except KeyError:
+            return None
 
     @classmethod
     def find_by_first_name(cls, firstname):
         """ Returns all Customers with the given first name
-
-        Args:
-            firstname (string): the first name of the Customers you want to match
         """
-        cls.logger.info('Processing first name query for %s ...', firstname)
-        return cls.query.filter(cls.firstname == firstname)
+        return cls.find_by(firstname=firstname)
 
     @classmethod
     def find_by_last_name(cls, lastname):
         """ Returns all Customers with the given last name
-
-        Args:
-            lastname (string): the last name of the Customers you want to match
         """
-        cls.logger.info('Processing last name query for %s ...', lastname)
-        return cls.query.filter(cls.lastname == lastname)
+        return cls.find_by(lastname=lastname)
 
     @classmethod
     def find_by_email(cls, email):
         """ Returns all of the Customers with a email
-
-        Args:
-            email (string): the email of the Customer you want to match
         """
-        cls.logger.info('Processing email query for %s ...', email)
-        return cls.query.filter(cls.email == email)
+        return cls.find_by(email=email)
 
     @classmethod
     def find_by_subscribed(cls,flag):
         """ Returns all of the Customers who are subscribed
-
-        Args:
-            subscribed (assertTrue) : if the customer is subscribed to email list
         """
-        cls.logger.info('Processing subscription query ...',)
-        return cls.query.filter(cls.subscribed == flag)
+        return cls.find_by(subscribed=flag)
 
     @classmethod
     def find_by_address1(cls, address1):
         """ Returns all of the Customers with a address1
-
-        Args:
-            address1 (string): the address1 of the Customer you want to match
         """
-        cls.logger.info('Processing address1 query for %s ...', address1)
-        return cls.query.filter(cls.address1 == address1)
+        return cls.find_by(address1=address1)
 
     @classmethod
     def find_by_address2(cls, address2):
         """ Returns all of the Customers with a address2
-
-        Args:
-            address2 (string): the address2 of the Customer you want to match
         """
-        cls.logger.info('Processing address2 query for %s ...', address2)
-        return cls.query.filter(cls.address2 == address2)
+        return cls.find_by(address2=address2)
 
     @classmethod
     def find_by_email(cls, email):
         """ Returns all of the Customers with a email
-
-        Args:
-            email (string): the email of the Customer you want to match
         """
-        cls.logger.info('Processing email query for %s ...', email)
-        return cls.query.filter(cls.email == email)
+        return cls.find_by(email=email)
 
     @classmethod
     def find_by_city(cls, city):
         """ Returns all of the Customers with a city
-
-        Args:
-            city (string): the city of the Customer you want to match
         """
-        cls.logger.info('Processing city query for %s ...', city)
-        return cls.query.filter(cls.city == city)
+        return cls.find_by(city=city)
 
     @classmethod
     def find_by_province(cls, province):
         """ Returns all of the Customers with a province
-
-        Args:
-            province (string): the province of the Customer you want to match
         """
-        cls.logger.info('Processing province query for %s ...', province)
-        return cls.query.filter(cls.province == province)
+        return cls.find_by(province=province)
 
     @classmethod
     def find_by_country(cls, country):
         """ Returns all of the Customers with a country
-
-        Args:
-            country (string): the country of the Customer you want to match
         """
-        cls.logger.info('Processing country query for %s ...', country)
-        return cls.query.filter(cls.country == country)
+        return cls.find_by(country=country)
 
     @classmethod
     def find_by_zip(cls, zip):
         """ Returns all of the Customers with a zip
-
-        Args:
-            zip (string): the zip of the Customer you want to match
         """
-        cls.logger.info('Processing zip query for %s ...', zip)
-        return cls.query.filter(cls.zip == zip)
+        return cls.find_by(zip=zip)
+
+############################################################
+#  C L O U D A N T   D A T A B A S E   C O N N E C T I O N
+############################################################
+
+    @staticmethod
+    def init_db(dbname='customers'):
+        """
+        Initialized Coundant database connection
+        """
+        opts = {}
+        vcap_services = {}
+        # Try and get VCAP from the environment or a file if developing
+        if 'VCAP_SERVICES' in os.environ:
+            Customer.logger.info('Running in Bluemix mode.')
+            vcap_services = json.loads(os.environ['VCAP_SERVICES'])
+        # if VCAP_SERVICES isn't found, maybe we are running on Kubernetes?
+        elif 'BINDING_CLOUDANT' in os.environ:
+            Customer.logger.info('Found Kubernetes Bindings')
+            creds = json.loads(os.environ['BINDING_CLOUDANT'])
+            vcap_services = {"cloudantNoSQLDB": [{"credentials": creds}]}
+        else:
+            Customer.logger.info('VCAP_SERVICES and BINDING_CLOUDANT undefined.')
+            creds = {
+                "username": CLOUDANT_USERNAME,
+                "password": CLOUDANT_PASSWORD,
+                "host": CLOUDANT_HOST,
+                "port": 5984,
+                "url": "http://"+CLOUDANT_HOST+":5984/"
+            }
+            vcap_services = {"cloudantNoSQLDB": [{"credentials": creds}]}
+
+        # Look for Cloudant in VCAP_SERVICES
+        for service in vcap_services:
+            if service.startswith('cloudantNoSQLDB'):
+                cloudant_service = vcap_services[service][0]
+                opts['username'] = cloudant_service['credentials']['username']
+                opts['password'] = cloudant_service['credentials']['password']
+                opts['host'] = cloudant_service['credentials']['host']
+                opts['port'] = cloudant_service['credentials']['port']
+                opts['url'] = cloudant_service['credentials']['url']
+
+        if any(k not in opts for k in ('host', 'username', 'password', 'port', 'url')):
+            Customer.logger.info('Error - Failed to retrieve options. ' \
+                             'Check that app is bound to a Cloudant service.')
+            exit(-1)
+
+        Customer.logger.info('Cloudant Endpoint: %s', opts['url'])
+        try:
+            if ADMIN_PARTY:
+                Customer.logger.info('Running in Admin Party Mode...')
+            Customer.client = Cloudant(opts['username'],
+                                  opts['password'],
+                                  url=opts['url'],
+                                  connect=True,
+                                  auto_renew=True,
+                                  admin_party=ADMIN_PARTY
+                                 )
+        except ConnectionError:
+            raise AssertionError('Cloudant service could not be reached')
+
+        # Create database if it doesn't exist
+        try:
+            Customer.database = Customer.client[dbname]
+        except KeyError:
+            # Create a database using an initialized client
+            Customer.database = Customer.client.create_database(dbname)
+        # check for success
+        if not Customer.database.exists():
+            raise AssertionError('Database [{}] could not be obtained'.format(dbname))

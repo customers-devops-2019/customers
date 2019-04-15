@@ -421,6 +421,21 @@ class TestCustomerServer(unittest.TestCase):
                             content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_400_BAD_REQUEST)
 
+    def test_create_customer_no_content_type(self):
+        """ Create a customer with no Content-Type """
+        new_customer = {'firstname': 'Sammy', 'lastname': 'Woods', 'email': 'snake@hotmail.com',
+                        'address1': '12 Main st', 'address2': '3', 'city': 'Denver',
+                        'country': 'Canada', 'province': 'NY', 'zip': '80290'}
+        data = json.dumps(new_customer)
+        resp = self.app.post('/customers', data=data)
+        self.assertEqual(resp.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_create_customer_wrong_content_type(self):
+        """ Create a Customer with wrong Content-Type """
+        data = "Isabel the Ecuadorian"
+        resp = self.app.post('/customers', data=data, content_type='plain/text')
+        self.assertEqual(resp.status_code, HTTP_400_BAD_REQUEST)
+
 
 ######################################################################
 #   M A I N

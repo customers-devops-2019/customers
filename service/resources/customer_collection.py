@@ -58,7 +58,7 @@ class CustomerCollection(Resource):
         """
         Creates a Customer
 
-        This endpoint will create a Pet based the data in the body that is posted
+        This endpoint will create a Customer based the data in the body that is posted
         or data that is sent via an html form post.
         """
         app.logger.info('Request to Create a Customer')
@@ -100,6 +100,6 @@ class CustomerCollection(Resource):
         except DataValidationError as error:
             raise BadRequest(str(error))
         customer.save()
-        app.logger.info('Pet with new id [%s] saved!', customer.id)
+        app.logger.info('Customer with new id [%s] saved!', customer.id)
         location_url = api.url_for(CustomerResource, customer_id=customer.id, _external=True)
         return customer.serialize(), status.HTTP_201_CREATED, {'Location': location_url}

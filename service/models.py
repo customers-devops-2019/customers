@@ -12,27 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Models for Customer Demo Service
+Customer Model that uses Cloudant
 
-All of the models are stored in this module
+You must initlaize this class before use by calling inititlize().
+This class looks for an environment variable called VCAP_SERVICES
+to get it's database credentials from. If it cannot find one, it
+tries to connect to Cloudant on the localhost. If that fails it looks
+for a server name 'cloudant' to connect to.
 
-Models
-------
-Customer - A Customer who buys online
+To use with Docker couchdb database use:
+    docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=pass couchdb
 
-Attributes:
------------
-firstname (string) - the first name of the customer
-lastname (string) - the last name of the customer
-email (string) - the email
-subscribed (boolean) - is customer subscribed
-address1 (string) - the address1
-address2 (string) - the address2
-city (string) - the city
-province (string) - the province
-country (string) - the country
-zip (string) - the zip code
-
+Docker Note:
+    CouchDB uses /opt/couchdb/data to store its data, and is exposed as a volume
+    e.g., to use current folder add: -v $(pwd):/opt/couchdb/data
+    You can also use Docker volumes like this: -v couchdb_data:/opt/couchdb/data
 """
 import os
 import json
@@ -233,7 +227,10 @@ class Customer(object):
         """ Query that finds Customers by their ID """
         try:
             document = cls.database[customer_id]
-            return Customer().deserialize(document)
+            if 'firstname' in document:
+                return Customer().deserialize(document)
+            else :
+                return None
         except KeyError:
             return None
 
@@ -265,13 +262,19 @@ class Customer(object):
     def find_by_address1(cls, address1):
         """ Returns all of the Customers with a address1
         """
-        return cls.find_by(address1=address1)
+        sel = {
+           "address1": address1
+        }
+        return cls.find_by(address=sel)
 
     @classmethod
     def find_by_address2(cls, address2):
         """ Returns all of the Customers with a address2
         """
-        return cls.find_by(address2=address2)
+        sel = {
+           "address2": address2
+        }
+        return cls.find_by(address=sel)
 
     @classmethod
     def find_by_email(cls, email):
@@ -283,25 +286,37 @@ class Customer(object):
     def find_by_city(cls, city):
         """ Returns all of the Customers with a city
         """
-        return cls.find_by(city=city)
+        sel = {
+           "city": city
+        }
+        return cls.find_by(address=sel)
 
     @classmethod
     def find_by_province(cls, province):
         """ Returns all of the Customers with a province
         """
-        return cls.find_by(province=province)
+        sel = {
+           "province": province
+        }
+        return cls.find_by(address=sel)
 
     @classmethod
     def find_by_country(cls, country):
         """ Returns all of the Customers with a country
         """
-        return cls.find_by(country=country)
+        sel = {
+           "country": country
+        }
+        return cls.find_by(address=sel)
 
     @classmethod
     def find_by_zip(cls, zip):
         """ Returns all of the Customers with a zip
         """
-        return cls.find_by(zip=zip)
+        sel = {
+           "zip": zip
+        }
+        return cls.find_by(address=sel)
 
 ############################################################
 #  C L O U D A N T   D A T A B A S E   C O N N E C T I O N

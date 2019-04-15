@@ -7,11 +7,22 @@ Test cases can be run with:
 """
 
 import unittest
-import os
-from app.models import Customer, DataValidationError, db
-from app import app
+from mock import MagicMock, patch
+from requests import HTTPError, ConnectionError
+from service.models import Customer, DataValidationError
 
-DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
+VCAP_SERVICES = {
+    'cloudantNoSQLDB': [
+        {'credentials': {
+            'username': 'admin',
+            'password': 'pass',
+            'host': 'localhost',
+            'port': 5984,
+            'url': 'http://admin:pass@localhost:5984'
+            }
+        }
+    ]
+}
 
 ######################################################################
 #  T E S T   C A S E S
@@ -19,27 +30,12 @@ DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 
 
 class TestCustomers(unittest.TestCase):
-    """ Test Cases for Customers """
-
-    @classmethod
-    def setUpClass(cls):
-        """ These run once per Test suite """
-        app.debug = False
-        # Set up the test database
-        app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
+    """ Test Cases for Customer Model """
 
     def setUp(self):
-        Customer.init_db(app)
-        db.drop_all()    # clean up the last tests
-        db.create_all()  # make our sqlalchemy tables
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        """ Initialize the Cloudant database """
+        Customer.init_db("test")
+        Customer.remove_all()
 
     def test_create_a_customer(self):
         """ Create a customer and assert that it exists """
@@ -72,9 +68,23 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(customer.id, None)
         customer.save()
         # Asert that it was assigned an id and shows up in the database
-        self.assertEqual(customer.id, 1)
+        self.assertNotEqual(customer.id, None)
         customers = Customer.all()
         self.assertEqual(len(customers), 1)
+
+        self.assertNotEqual(customer.id, None)
+        customers = Customer.all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].firstname, "John")
+        self.assertEqual(customers[0].lastname, "Doe")
+        self.assertEqual(customers[0].email, "fake1@email.com")
+        self.assertEqual(customers[0].subscribed, False)
+        self.assertEqual(customers[0].address1, "123 Main St")
+        self.assertEqual(customers[0].address2, "1B")
+        self.assertEqual(customers[0].city, "New York")
+        self.assertEqual(customers[0].province, "NY")
+        self.assertEqual(customers[0].country, "USA")
+        self.assertEqual(customers[0].zip, "12310")
 
     def test_update_a_customer_name(self):
         """ Update a Customer name """
@@ -83,16 +93,16 @@ class TestCustomers(unittest.TestCase):
                             city="New York", country="USA", province="NY", zip="12310"
                            )
         customer.save()
-        self.assertEqual(customer.id, 1)
+        self.assertNotEqual(customer.id, None)
         # Change it an save it
-        customer.name = "Isabel"
+        customer.firstname = "Isabel"
         customer.save()
-        self.assertEqual(customer.id, 1)
+        self.assertNotEqual(customer.id, None)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         customers = customer.all()
         self.assertEqual(len(customers), 1)
-        self.assertEqual(customers[0].name, "Isabel")
+        self.assertEqual(customers[0].firstname, "Isabel")
 
     def test_update_a_customer_email(self):
         """ Update a Customer email """
@@ -101,11 +111,11 @@ class TestCustomers(unittest.TestCase):
                             city="New York", country="USA", province="NY", zip="12310"
                            )
         customer.save()
-        self.assertEqual(customer.id, 1)
+        self.assertNotEqual(customer.id, None)
         # Change it an save it
         customer.email = "ethan@gmail.com"
         customer.save()
-        self.assertEqual(customer.id, 1)
+        self.assertNotEqual(customer.id, None)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         customers = customer.all()
@@ -119,18 +129,18 @@ class TestCustomers(unittest.TestCase):
                             city="New York", country="USA", province="NY", zip="12310"
                            )
         customer.save()
-        self.assertEqual(customer.id, 1)
+        self.assertNotEqual(customer.id, None)
         # Change it an save it
         customer.email = "ethan@gmail.com"
-        customer.name = "Isabel"
+        customer.firstname = "Isabel"
         customer.save()
-        self.assertEqual(customer.id, 1)
+        self.assertNotEqual(customer.id, None)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         customers = customer.all()
         self.assertEqual(len(customers), 1)
         self.assertEqual(customers[0].email, "ethan@gmail.com")
-        self.assertEqual(customers[0].name, "Isabel")
+        self.assertEqual(customers[0].firstname, "Isabel")
 
     def test_delete_a_customer(self):
         """ Delete a Customer """
@@ -140,7 +150,7 @@ class TestCustomers(unittest.TestCase):
                            )
         customer.save()
         self.assertEqual(len(customer.all()), 1)
-        # delete the pet and make sure it isn't in the database
+        # delete the customer and make sure it isn't in the database
         customer.delete()
         self.assertEqual(len(customer.all()), 0)
 
@@ -152,8 +162,7 @@ class TestCustomers(unittest.TestCase):
                            )
         data = customer.serialize()
         self.assertNotEqual(data, None)
-        self.assertIn('id', data)
-        self.assertEqual(data['id'], None)
+        self.assertNotIn('_id', data)
         self.assertIn('firstname', data)
         self.assertEqual(data['firstname'], "John")
         self.assertIn('lastname', data)
@@ -174,7 +183,6 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(data['address']['country'], "USA")
         self.assertIn('zip', data["address"])
         self.assertEqual(data['address']['zip'], "12310")
-
 
     def test_deserialize_a_customer(self):
         """ Test deserialization of a Customer """
@@ -240,7 +248,6 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(customer.country, "USA")
         self.assertEqual(customer.zip, "12310")
 
-
     def test_find_by_email(self):
         """ Find Customers by Email """
         Customer(firstname="John", lastname="Doe", email="fake1@email.com",
@@ -260,7 +267,6 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(customers[0].province, "NY")
         self.assertEqual(customers[0].country, "USA")
         self.assertEqual(customers[0].zip, "12310")
-
 
     def test_find_by_first_name(self):
         """ Find a Customer by First Name """
@@ -331,6 +337,7 @@ class TestCustomers(unittest.TestCase):
                  subscribed=False, address1="124 Main St", address2="1E", city="New York",
                  country="USA", province="NY", zip="12310").save()
         customers = Customer.find_by_address2("1B")
+        self.assertNotEqual(len(customers), 0)
         self.assertEqual(customers[0].email, "fake1@email.com")
         self.assertEqual(customers[0].firstname, "John")
         self.assertEqual(customers[0].lastname, "Doe")
@@ -442,9 +449,58 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(customers[0].country, "USA")
         self.assertEqual(customers[0].zip, "12310")
 
+    @patch('cloudant.database.CloudantDatabase.create_document')
+    def test_http_error(self, bad_mock):
+        """ Test a Bad Create with HTTP error """
+        bad_mock.side_effect = HTTPError()
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
+                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
+                 country="USA", province="NY", zip="12310")
+        customer.create()
+        self.assertIsNone(customer.id)
+
+    @patch('cloudant.document.Document.exists')
+    def test_document_not_exist(self, bad_mock):
+        """ Test a Bad Document Exists """
+        bad_mock.return_value = False
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
+                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
+                 country="USA", province="NY", zip="12310")
+        customer.create()
+        self.assertIsNone(customer.id)
+
+    @patch('cloudant.database.CloudantDatabase.__getitem__')
+    def test_key_error_on_update(self, bad_mock):
+        """ Test KeyError on update """
+        bad_mock.side_effect = KeyError()
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
+                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
+                 country="USA", province="NY", zip="12310")
+        customer.save()
+        customer.firstname = 'Joe'
+        customer.update()
+        #self.assertEqual(customer.name, 'fido')
+
+    @patch('cloudant.database.CloudantDatabase.__getitem__')
+    def test_key_error_on_delete(self, bad_mock):
+        """ Test KeyError on delete """
+        bad_mock.side_effect = KeyError()
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
+                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
+                 country="USA", province="NY", zip="12310")
+        customer.create()
+        customer.delete()
+
+    @patch('cloudant.client.Cloudant.__init__')
+    def test_connection_error(self, bad_mock):
+        """ Test Connection error handler """
+        bad_mock.side_effect = ConnectionError()
+        self.assertRaises(AssertionError, Customer.init_db, 'test')
 
 ######################################################################
 #   M A I N
 ######################################################################
 if __name__ == '__main__':
     unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestCustomers)
+    unittest.TextTestRunner(verbosity=2).run(suite)

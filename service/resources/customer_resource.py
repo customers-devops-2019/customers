@@ -41,7 +41,7 @@ class CustomerResource(Resource):
         """
         app.logger.info('Request to Update a customer with id [%s]', customer_id)
         #check_content_type('application/json')
-        customer = Custoemr.find(customer_id)
+        customer = Customer.find(customer_id)
         if not customer:
             abort(status.HTTP_404_NOT_FOUND, "Custoemr with id '{}' was not found.".format(customer_id))
 

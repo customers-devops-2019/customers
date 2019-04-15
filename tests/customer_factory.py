@@ -3,7 +3,7 @@ Test Factory to make fake objects for testing
 """
 import factory
 from factory.fuzzy import FuzzyChoice
-from app.models import Customer
+from service.models import Customer
 
 
 class CustomerFactory(factory.Factory):
@@ -11,7 +11,6 @@ class CustomerFactory(factory.Factory):
     class Meta:
         model = Customer
         exclude = ('number', 'street')
-    id = factory.Sequence(lambda n: n)
     firstname = factory.Faker('first_name')
     lastname = factory.Faker('last_name')
     email = FuzzyChoice(choices=['fake1@email.com',

@@ -2,21 +2,24 @@
 Customer API Service Test Suite
 
 Test cases can be run with the following:
-  nosetests -v --with-spec --spec-color
-  coverage report -m
-  codecov --token=$CODECOV_TOKEN
+nosetests -v --with-spec --spec-color
 """
 
 import unittest
-import os
-import logging
-from flask_api import status    # HTTP Status Codes
-#from mock import MagicMock, patch
-from app.models import Customer, DataValidationError, db
+import json
+from werkzeug.datastructures import MultiDict, ImmutableMultiDict
+from service import app
 from .customer_factory import CustomerFactory
-import app.service as service
+from service.models import Customer
 
-DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
+# Status Codes
+HTTP_200_OK = 200
+HTTP_201_CREATED = 201
+HTTP_204_NO_CONTENT = 204
+HTTP_400_BAD_REQUEST = 400
+HTTP_404_NOT_FOUND = 404
+HTTP_405_METHOD_NOT_ALLOWED = 405
+HTTP_409_CONFLICT = 409
 
 ######################################################################
 #  T E S T   C A S E S
@@ -24,30 +27,13 @@ DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 
 
 class TestCustomerServer(unittest.TestCase):
-    """ Customer Server Tests """
-
-    @classmethod
-    def setUpClass(cls):
-        """ Run once before all tests """
-        service.app.debug = False
-        service.initialize_logging(logging.INFO)
-        # Set up the test database
-        service.app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
+    """ Test Cases for Customer Server """
 
     def setUp(self):
-        """ Runs before each test """
-        service.init_db()
-        db.drop_all()    # clean up the last tests
-        db.create_all()  # create new tables
-        self.app = service.app.test_client()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        """ Initialize the Cloudant database """
+        self.app = app.test_client()
+        Customer.init_db("tests")
+        Customer.remove_all()
 
     def _create_customers(self, count):
         """ Factory method to create customers in bulk """
@@ -57,42 +43,42 @@ class TestCustomerServer(unittest.TestCase):
             resp = self.app.post('/customers',
                                  json=test_customer.serialize(),
                                  content_type='application/json')
-            self.assertEqual(resp.status_code, status.HTTP_201_CREATED,
+            self.assertEqual(resp.status_code, HTTP_201_CREATED,
                              'Could not create test customer')
             new_customer = resp.get_json()
-            test_customer.id = new_customer['id']
+            test_customer._id = new_customer['_id']
             customers.append(test_customer)
         return customers
 
     def test_index(self):
         """ Test the Home Page """
         resp = self.app.get('/')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data['name'], 'Customer Demo REST API Service')
+        self.assertIn('Customer Demo REST API Service', resp.data)
 
     def test_get_customer_list(self):
         """ Get a list of Customers """
         self._create_customers(5)
         resp = self.app.get('/customers')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
     def test_get_customer(self):
         """ Get a single Customer """
-        # get the id of a customer
+        # get the _id of a customer
         test_customer = self._create_customers(1)[0]
-        resp = self.app.get('/customers/{}'.format(test_customer.id),
+        resp = self.app.get('/customers/{}'.format(test_customer._id),
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data['firstname'], test_customer.firstname)
 
     def test_get_customer_not_found(self):
         """ Get a Customer thats not found """
         resp = self.app.get('/customers/0')
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
 
     def test_create_customer(self):
         """ Create a new Customer """
@@ -100,7 +86,7 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.post('/customers',
                              json=test_customer.serialize(),
                              content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, HTTP_201_CREATED)
         # Make sure location header is set
         location = resp.headers.get('Location', None)
         self.assertTrue(location != None)
@@ -130,7 +116,7 @@ class TestCustomerServer(unittest.TestCase):
         # Check that the location header was correct
         resp = self.app.get(location,
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         new_customer = resp.get_json()
         self.assertEqual(new_customer['firstname'], test_customer.firstname,
                          "First name does not match")
@@ -160,15 +146,15 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.post('/customers',
                              json=test_customer.serialize(),
                              content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, HTTP_201_CREATED)
 
         # update the customer
         new_customer = resp.get_json()
         new_customer['firstname'] = 'Isabel'
-        resp = self.app.put('/customers/{}'.format(new_customer['id']),
+        resp = self.app.put('/customers/{}'.format(new_customer['_id']),
                             json=new_customer,
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer['firstname'], 'Isabel')
 
@@ -179,15 +165,15 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.post('/customers',
                              json=test_customer.serialize(),
                              content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, HTTP_201_CREATED)
 
         # update the customer
         new_customer = resp.get_json()
         new_customer['email'] = 'ethan@gmail.com'
-        resp = self.app.put('/customers/{}'.format(new_customer['id']),
+        resp = self.app.put('/customers/{}'.format(new_customer['_id']),
                             json=new_customer,
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer['email'], 'ethan@gmail.com')
 
@@ -198,16 +184,16 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.post('/customers',
                              json=test_customer.serialize(),
                              content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, HTTP_201_CREATED)
 
         # update the customer
         new_customer = resp.get_json()
         new_customer['email'] = 'anthony@gmail.com'
         new_customer['firstname'] = 'Ted'
-        resp = self.app.put('/customers/{}'.format(new_customer['id']),
+        resp = self.app.put('/customers/{}'.format(new_customer['_id']),
                             json=new_customer,
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer['email'], 'anthony@gmail.com')
         self.assertEqual(updated_customer['firstname'], 'Ted')
@@ -215,14 +201,14 @@ class TestCustomerServer(unittest.TestCase):
     def test_delete_customer(self):
         """ Delete a Customer """
         test_customer = self._create_customers(1)[0]
-        resp = self.app.delete('/customers/{}'.format(test_customer.id),
+        resp = self.app.delete('/customers/{}'.format(test_customer._id),
                                content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
         # make sure they are deleted
-        resp = self.app.get('/customers/{}'.format(test_customer.id),
+        resp = self.app.get('/customers/{}'.format(test_customer._id),
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
 
     def test_unsubscribe_customer(self):
         """ Unsubscribe an existing Customer """
@@ -234,23 +220,23 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.post('/customers',
                              json=test_customer,
                              content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, HTTP_201_CREATED)
 
         # update the customer
         new_customer = resp.get_json()
-        resp = self.app.put('/customers/{}/unsubscribe'.format(new_customer['id']),
+        resp = self.app.put('/customers/{}/unsubscribe'.format(new_customer['_id']),
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer['subscribed'], False)
 
     def test_get_address(self):
         """ Get a address of Customer """
-        # get the id of a customer
+        # get the _id of a customer
         test_customer = self._create_customers(1)[0]
-        resp = self.app.get('/customers/{}/address'.format(test_customer.id),
+        resp = self.app.get('/customers/{}/address'.format(test_customer._id),
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         test_obj = test_customer.serialize()
         self.assertEqual(data, test_obj["address"])
@@ -262,7 +248,7 @@ class TestCustomerServer(unittest.TestCase):
         email_customers = [customer for customer in customers if customer.email == test_email]
         resp = self.app.get('/customers',
                             query_string='email={}'.format(test_email))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(email_customers))
         # check the data just to be sure
@@ -277,7 +263,7 @@ class TestCustomerServer(unittest.TestCase):
                                if customer.firstname == test_firstname]
         resp = self.app.get('/customers',
                             query_string='firstname={}'.format(test_firstname))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(firstname_customers))
         # check the data just to be sure
@@ -292,7 +278,7 @@ class TestCustomerServer(unittest.TestCase):
                               if customer.lastname == test_lastname]
         resp = self.app.get('/customers',
                             query_string='lastname={}'.format(test_lastname))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(lastname_customers))
         # check the data just to be sure
@@ -308,7 +294,7 @@ class TestCustomerServer(unittest.TestCase):
                                 if customer.subscribed == test_subscribed]
         resp = self.app.get('/customers',
                             query_string='subscribed={}'.format(test_subscribed))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(subscribed_customers))
         # check the data just to be sure
@@ -322,7 +308,7 @@ class TestCustomerServer(unittest.TestCase):
         a1_customers = [customer for customer in customers if customer.address1 == test_a1]
         resp = self.app.get('/customers',
                             query_string='address1={}'.format(test_a1))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(a1_customers))
         # check the data just to be sure
@@ -336,7 +322,7 @@ class TestCustomerServer(unittest.TestCase):
         a2_customers = [customer for customer in customers if customer.address2 == test_a2]
         resp = self.app.get('/customers',
                             query_string='address2={}'.format(test_a2))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(a2_customers))
         # check the data just to be sure
@@ -350,7 +336,7 @@ class TestCustomerServer(unittest.TestCase):
         city_customers = [customer for customer in customers if customer.city == test_city]
         resp = self.app.get('/customers',
                             query_string='city={}'.format(test_city))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(city_customers))
         # check the data just to be sure
@@ -365,7 +351,7 @@ class TestCustomerServer(unittest.TestCase):
                               if customer.province == test_province]
         resp = self.app.get('/customers',
                             query_string='province={}'.format(test_province))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(province_customers))
         # check the data just to be sure
@@ -379,7 +365,7 @@ class TestCustomerServer(unittest.TestCase):
         country_customers = [customer for customer in customers if customer.country == test_country]
         resp = self.app.get('/customers',
                             query_string='country={}'.format(test_country))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(country_customers))
         # check the data just to be sure
@@ -393,7 +379,7 @@ class TestCustomerServer(unittest.TestCase):
         zi_customers = [customer for customer in customers if customer.zip == test_zi]
         resp = self.app.get('/customers',
                             query_string='zip={}'.format(test_zi))
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), len(zi_customers))
         # check the data just to be sure
@@ -403,12 +389,12 @@ class TestCustomerServer(unittest.TestCase):
     def test_method_not_allowed(self):
         """ Test Error Method Not Allowed """
         resp = self.app.get('/customers/1/unsubscribe')
-        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(resp.status_code, HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_resource_not_found(self):
         """ Test Error Not Found """
         resp = self.app.get('/customers/10')
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
 
     def test_resource_not_found_update(self):
         """ Test Error Update Not Found """
@@ -417,57 +403,23 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.put('/customers/10',
                             json=test_customer.serialize(),
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
 
-    def test_server_error(self):
-        """ Test Server Error """
+    def test_bad_request(self):
+        """ Test Error Bad Request """
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post('/customers',
                              json=test_customer.serialize(),
                              content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.status_code, HTTP_201_CREATED)
 
         # update the customer
         new_customer = resp.get_json()
-        new_customer['subscribed'] = "Hello"
-        resp = self.app.put('/customers/{}'.format(new_customer['id']),
-                            json=new_customer,
+        resp = self.app.put('/customers/{}'.format(new_customer['_id']),
+                            json=10,
                             content_type='application/json')
-        self.assertEqual(resp.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        def test_bad_request(self):
-            """ Test Error Bad Request """
-            # create a customer to update
-            test_customer = CustomerFactory()
-            resp = self.app.post('/customers',
-                                 json=test_customer.serialize(),
-                                 content_type='application/json')
-            self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-
-            # update the customer
-            new_customer = resp.get_json()
-            resp = self.app.put('/customers/{}'.format(new_customer['id']),
-                                json=10,
-                                content_type='application/json')
-            self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
-        def test_unsupported_media_type(self):
-            """ Test Unsupported Media Type Error """
-            # create a customer to update
-            test_customer = CustomerFactory()
-            resp = self.app.post('/customers',
-                                 json=test_customer.serialize(),
-                                 content_type='application/json')
-            self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-
-            # update the customer
-            new_customer = resp.get_json()
-            new_customer['subscribed'] = True
-            resp = self.app.put('/customers/{}'.format(new_customer['id']),
-                                json=new_customer,
-                                content_type='application/zip')
-            self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertEqual(resp.status_code, HTTP_400_BAD_REQUEST)
 
 
 ######################################################################

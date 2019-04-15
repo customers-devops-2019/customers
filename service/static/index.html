@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Customer Demo RESTful Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/stylesheets/style.css">
+  </head>
+  <body>
+      <table>
+		<tr>
+            <td style= "width:30%;">
+              <img class = "newappIcon" src="static/images/newapp-icon.png" alt="application icon">
+            </td>
+			<td>
+				<h1 id = "message">Customer Demo REST API Service</h1>
+				<p class='description'>
+				GET <a href="/customers" id = "get_customers">/customers</a> to see all the customers.
+				<br><br>
+                GET <a href="/customers?subscribed=true">/customers?subscribed=true</a> to see all of the customers with subscribed to true.
+				<br><br>
+				GET /customers/{id} retrieves a customer from the DB using an ID.
+				<br><br>
+				PUT /customers/{id} updates a customer using an ID.
+				<br><br>
+				DELETE /customers/{id} removes a customer from the DB using an ID.
+				<br><br>
+				POST /customers creates an new customer.
+                <p>Example Data:</p>
+                <pre>
+                  {
+              	"firstname":"John",
+              	"lastname":"Doe",
+              	"email":"jdoe@email.com",
+              	"subscribed": true,
+              	"address": {
+              		"address1": "1 Second St",
+              		"address2":"1E",
+              		"city":"New York",
+              		"province":"NY",
+              		"country":"USA",
+              		"zip":"24233"
+              	}
+              }
+                </pre>
+                Try it now:
+                <form id="create_customers" action="/customers" method="post" enctype="application/json">
+                    <input type="hidden" name="available" value="True" />
+                    <div>
+                      <label for="firstname">What is the first name of the customer?</label>
+                      <input name="firstname" id="firstname" value="John">
+                    </div>
+                    <div>
+                      <label for="lastname">What is the last name of the customer?</label>
+                      <input name="lastname" id="lastname" value="Doe">
+                    </div>
+                    <div>
+                      <label for="email">What is the email of the customer?</label>
+                      <input name="email" id="email" value="jdoe@email.com">
+                    </div>
+                    <div>
+                      <label for="subscribed">Does the customer want to be subscribed?</label>
+                      <select name="subscribed">
+                        <option value="true">True</option>
+                        <option value="false">False</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="address1">What is the address1 of the customer?</label>
+                      <input name="address1" id="address1" value="1 Second St">
+                    </div>
+                    <div>
+                      <label for="address2">What is the address2 of the customer?</label>
+                      <input name="address2" id="address2" value="1E">
+                    </div>
+                    <div>
+                      <label for="province">What is the province of the customer?</label>
+                      <input name="province" id="province" value="NY">
+                    </div>
+                    <div>
+                      <label for="city">What is the city of the customer?</label>
+                      <input name="city" id="city" value="New York">
+                    </div>
+                    <div>
+                      <label for="zip">What is the zip of the customer?</label>
+                      <input name="zip" id="zip" value="24233">
+                    </div>
+                    <div>
+                      <label for="country">What is the country of the customer?</label>
+                      <input name="country" id="country" value="USA">
+                    </div>
+                    <div>
+                      <button id="submit">Create Customer</button>
+                    </div>
+                </form>
+			</td>
+		</tr>
+	</table>
+  </body>
+</html>

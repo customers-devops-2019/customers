@@ -56,6 +56,51 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(customer.country, "USA")
         self.assertEqual(customer.zip, "12310")
 
+    def test_create_a_customer_with_no_name(self):
+        """ Create a Cusomter with no name """
+        customer = Customer(firstname= None, lastname="Doe", email="fake1@email.com",
+                            subscribed=False, address1="123 Main St", address2="1B",
+                            city="New York", country="USA", province="NY", zip="12310"
+                           )
+        self.assertRaises(DataValidationError, customer.create)
+
+    def test_create_a_customer_with_no_name(self):
+        """ Create a Cusomter with no name """
+        customer = Customer(firstname= None, lastname="Doe", email="fake1@email.com",
+                            subscribed=False, address1="123 Main St", address2="1B",
+                            city="New York", country="USA", province="NY", zip="12310"
+                           )
+        self.assertRaises(DataValidationError, customer.create)
+
+    def test_save_a_customer_with_no_name(self):
+        """ Save a Customer with no name """
+        customer = Customer(firstname= None, lastname="Doe", email="fake1@email.com",
+                  subscribed=False, address1="123 Main St", address2="1B",
+                  city="New York", country="USA", province="NY", zip="12310"
+                  )
+        self.assertRaises(DataValidationError, customer.save)
+
+    def test_create_query_index(self):
+        """ Test create query index """
+        Customer(firstname= "Jane", lastname="Doe", email="fake1@email.com",
+                  subscribed=False, address1="123 Main St", address2="1B",
+                  city="New York", country="USA", province="NY", zip="12310"
+                  ).save()
+        Customer(firstname= "Isabel", lastname="Doe", email="fake2@email.com",
+                  subscribed=False, address1="123 Orange St", address2="3B",
+                  city="New York", country="USA", province="NY", zip="12310"
+                  ).save()
+        Customer.create_query_index('firstname')
+
+    def test_disconnect(self):
+        """ Test Disconnet """
+        Customer.disconnect()
+        customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
+                            subscribed=False, address1="123 Main St", address2="1B",
+                            city="New York", country="USA", province="NY", zip="12310"
+                           )
+        self.assertRaises(AttributeError, customer.save)
+
     def test_add_a_customer(self):
         """ Create a customer and add it to the database """
         customers = Customer.all()

@@ -12,3 +12,4 @@ pinocchio==0.4.2
 coverage==4.5.2
 honcho==1.0.1
 httpie==1.0.0
+factory==1.0

@@ -454,8 +454,8 @@ class TestCustomers(unittest.TestCase):
         """ Test a Bad Create with HTTP error """
         bad_mock.side_effect = HTTPError()
         customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
-                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
-                 country="USA", province="NY", zip="12310")
+                            subscribed=False, address1="123 Main St", address2="1B",
+                            city="New York", country="USA", province="NY", zip="12310")
         customer.create()
         self.assertIsNone(customer.id)
 
@@ -464,8 +464,8 @@ class TestCustomers(unittest.TestCase):
         """ Test a Bad Document Exists """
         bad_mock.return_value = False
         customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
-                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
-                 country="USA", province="NY", zip="12310")
+                            subscribed=False, address1="123 Main St", address2="1B",
+                            city="New York", country="USA", province="NY", zip="12310")
         customer.create()
         self.assertIsNone(customer.id)
 
@@ -474,8 +474,8 @@ class TestCustomers(unittest.TestCase):
         """ Test KeyError on update """
         bad_mock.side_effect = KeyError()
         customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
-                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
-                 country="USA", province="NY", zip="12310")
+                            subscribed=False, address1="123 Main St", address2="1B",
+                            city="New York", country="USA", province="NY", zip="12310")
         customer.save()
         customer.firstname = 'Joe'
         customer.update()
@@ -486,8 +486,8 @@ class TestCustomers(unittest.TestCase):
         """ Test KeyError on delete """
         bad_mock.side_effect = KeyError()
         customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
-                 subscribed=False, address1="123 Main St", address2="1B", city="New York",
-                 country="USA", province="NY", zip="12310")
+                            subscribed=False, address1="123 Main St", address2="1B",
+                            city="New York", country="USA", province="NY", zip="12310")
         customer.create()
         customer.delete()
 

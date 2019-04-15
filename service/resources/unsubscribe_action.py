@@ -16,8 +16,6 @@ class UnsubscribeAction(Resource):
         customer = Customer.find(customer_id)
         if not customer:
             abort(status.HTTP_404_NOT_FOUND, "Customer with id '{}' was not found.".format(customer_id))
-        if not customer.subscribed:
-            abort(status.HTTP_400_BAD_REQUEST, "Customer with id '{}' is not subscribed.".format(customer_id))
         customer.subscribed = False
         customer.save()
         return customer.serialize(), status.HTTP_200_OK

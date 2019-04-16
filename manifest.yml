@@ -6,7 +6,7 @@ applications:
   instances: 2
   timeout: 180
   #random-route: true
-  host: customers-app
+  host: nyu-customer-service-s19
   domain: mybluemix.net
   path: .
   disk_quota: 1024M

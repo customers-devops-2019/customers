@@ -16,16 +16,16 @@ class CustomerResource(Resource):
     CustomerResource class
 
     Allows the manipulation of a single Customer
-    GET /customer{id} - Returns a Custoemr with the id
-    PUT /customer{id} - Update a Custoemr with the id
-    DELETE /customer{id} -  Deletes a Custoemr with the id
+    GET /customer{id} - Returns a Customer with the id
+    PUT /customer{id} - Update a Customer with the id
+    DELETE /customer{id} -  Deletes a Customer with the id
     """
 
     def get(self, customer_id):
         """
-        Retrieve a single Custoemr
+        Retrieve a single Customer
 
-        This endpoint will return a Custoemr based on it's id
+        This endpoint will return a Customer based on it's id
         """
         app.logger.info("Request to Retrieve a customer with id [%s]", customer_id)
         customer = Customer.find(customer_id)
@@ -37,13 +37,13 @@ class CustomerResource(Resource):
         """
         Update a Customer
 
-        This endpoint will update a Custoemr based the body that is posted
+        This endpoint will update a Customer based the body that is posted
         """
         app.logger.info('Request to Update a customer with id [%s]', customer_id)
         #check_content_type('application/json')
         customer = Customer.find(customer_id)
         if not customer:
-            abort(status.HTTP_404_NOT_FOUND, "Custoemr with id '{}' was not found.".format(customer_id))
+            abort(status.HTTP_404_NOT_FOUND, "Customer with id '{}' was not found.".format(customer_id))
 
         payload = request.get_json()
         try:

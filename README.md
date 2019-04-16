@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/customers-devops-2019/customers.svg?branch=master)](https://travis-ci.org/customers-devops-2019/customers)
 
+Link to our service: https://nyu-customer-service-s19.mybluemix.net/
+
 # Customers Service
 
 The Customer service will allow developers to exchange data between the web application and the customer database.

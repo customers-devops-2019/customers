@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Customer Demo RESTful Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/blue_bootstrap.min.css">
+    <script type="text/javascript" src = "static/js/jquery-3.1.1.min.js"></script>
+    <!-- <script type="text/javascript" src="static/js/rest_api_1.js"></script> -->
+  </head>
+  <body>
+    <div class="container">
+        <div class="page-header">
+            <h1>Customer Demo REST API Service</h1>
+        </div>
+
+        <!-- Flash Message -->
+        <div class="table-responsive">
+          <table class="table">
+            <tr><td>Status:</td><td><span id="flash_message"></span></td></tr>
+          </table>
+        </div>
+
+        <div class="col-md-12" id="form_data">
+          Create, Retrieve, Update, and Delete a Customer:
+          <div class="well">
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_id">Customer ID:</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="customer_id" placeholder="Enter ID of Customer">
+                </div>
+                <div class="col-sm-4">
+                  <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
+                  <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+                </div>
+              </div>
+            </div> <!-- form div -->
+
+            <div class="form-horizontal">
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_first_name">First Name:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_first_name" placeholder="Enter first name for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_last_name">Last Name:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_last_name" placeholder="Enter last name for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_email">Email:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_email" placeholder="Enter email for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_subscribed">Subscribed:</label>
+                <div class="col-sm-10">
+                  <select class="form-control" id="customer_subscribed">
+                      <option value="true" selected>True</option>
+                      <option value="false">False</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_address_1">Address 1:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_address_1" placeholder="Enter address 1 for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_address_2">Address 2:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_address_2" placeholder="Enter address 2 for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_city">City:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_city" placeholder="Enter city for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_province">Province:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_province" placeholder="Enter province for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_country">Country:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_country" placeholder="Enter country for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="customer_zip">Zip:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="customer_zip" placeholder="Enter zip for Customer">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                  <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
+                  <button type="submit" class="btn btn-success" id="create-btn">Create</button>
+                  <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+                </div>
+              </div>
+          </div> <!-- form div -->
+        </div>
+
+        <!-- Search Results -->
+        <div class="table-responsive col-md-12" id="search_results">
+          <table class="table-striped">
+            <thead>
+            <tr>
+                <th class="col-md-1">ID</th>
+                <th class="col-md-1">First Name</th>
+                <th class="col-md-1">Last Name</th>
+                <th class="col-md-1">Email</th>
+                <th class="col-md-1">Subscribed</th>
+                <th class="col-md-1">Address 1</th>
+                <th class="col-md-1">Address 2</th>
+                <th class="col-md-1">City</th>
+                <th class="col-md-1">Province</th>
+                <th class="col-md-1">Country</th>
+                <th class="col-md-1">Zip</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+
+        <footer>
+          <br><br>
+          <p>&copy; NYU DevOps Company 2019 - Customer Team</p>
+        </footer>
+        </div><!--/span-->
+     </div><!--/row-->
+
+  </div><!-- container -->
+  </body>
+</html>
+
+<script type="text/javascript">
+  $(function () {
+
+    // ****************************************
+    //  U T I L I T Y   F U N C T I O N S
+    // ****************************************
+
+    // Updates the form with data from the response
+    function update_form_data(res) {
+      console.log(res);
+        $("#customer_id").val(res.id);
+        $("#customer_first_name").val(res.firstname);
+        $("#customer_last_name").val(res.lastname);
+        $("#customer_email").val(res.email);
+        $("#customer_address_1").val(res.address.address1);
+        $("#customer_address_2").val(res.address.address2);
+        $("#customer_city").val(res.address.city);
+        $("#customer_province").val(res.address.province);
+        $("#customer_country").val(res.address.country);
+        $("#customer_zip").val(res.address.zip);
+        if (res.subscribed == true) {
+            $("#customer_subscribed").val("true");
+        } else {
+            $("#customer_subscribed").val("false");
+        }
+    }
+
+    /// Clears all form fields
+    function clear_form_data() {
+        $("#customer_first_name").val("");
+        $("#customer_last_name").val("");
+        $("#customer_email").val("");
+        $("#customer_subscribed").val("");
+        $("#customer_address_1").val("");
+        $("#customer_address_2").val("");
+        $("#customer_city").val("");
+        $("#customer_province").val("");
+        $("#customer_country").val("");
+        $("#customer_zip").val("");
+    }
+
+    // Updates the flash message area
+    function flash_message(message) {
+        $("#flash_message").empty();
+        $("#flash_message").append(message);
+    }
+
+    // ****************************************
+    // Create a Customer
+    // ****************************************
+
+    $("#create-btn").click(function () {
+
+        var firstname = $("#customer_first_name").val();
+        var lastname = $("#customer_last_name").val();
+        var email = $("#customer_email").val();
+        var subscribed = $("#customer_subscribed").val() == "true";
+        var address1 = $("#customer_address_1").val();
+        var address2 = $("#customer_address_2").val();
+        var city = $("#customer_city").val();
+        var province = $("#customer_province").val();
+        var country = $("#customer_country").val();
+        var zip = $("#customer_zip").val();
+
+        var data = {
+            "firstname": firstname,
+            "lastname": lastname,
+            "email": email,
+            "subscribed": subscribed,
+            "address": {
+                "address1": address1,
+                "address2":address2,
+                "city": city,
+                "province": province,
+                "country": country,
+                "zip": zip
+            }
+        };
+
+        var ajax = $.ajax({
+            type: "POST",
+            url: "/customers",
+            contentType:"application/json",
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            update_form_data(res);
+            flash_message("Success");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+    });
+
+
+    // ****************************************
+    // Update a Customer
+    // ****************************************
+
+    $("#update-btn").click(function () {
+
+        var customer_id = $("#customer_id").val();
+        var firstname = $("#customer_first_name").val();
+        var lastname = $("#customer_last_name").val();
+        var email = $("#customer_email").val();
+        var subscribed = $("#customer_subscribed").val() == "true";
+        var address1 = $("#customer_address_1").val();
+        var address2 = $("#customer_address_2").val();
+        var city = $("#customer_city").val();
+        var province = $("#customer_province").val();
+        var country = $("#customer_country").val();
+        var zip = $("#customer_zip").val();
+
+        var data = {
+            "firstname": firstname,
+            "lastname": lastname,
+            "email": email,
+            "subscribed": subscribed,
+            "address": {
+                "address1": address1,
+                "address2":address2,
+                "city": city,
+                "province": province,
+                "country": country,
+                "zip": zip
+            }
+        };
+
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/customers/" + customer_id,
+            contentType:"application/json",
+            data: JSON.stringify(data)
+        });
+
+        ajax.done(function(res){
+            update_form_data(res);
+            flash_message("Success");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+
+    });
+
+    // ****************************************
+    // Retrieve a Customer
+    // ****************************************
+
+    $("#retrieve-btn").click(function () {
+        var customer_id = $("#customer_id").val();
+        
+        if (customer_id =='') {
+          customer_id = 'undefined';
+          console.log("customer id is");
+          console.log(customer_id);
+        }
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/customers/" + customer_id,
+            contentType:"application/json",
+            data: ''
+        });
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            update_form_data(res);
+            flash_message("Success");
+        });
+
+        ajax.fail(function(res){
+            clear_form_data();
+            console.log("ERROR IS");
+            console.log(res);
+            flash_message(res.responseJSON.message);
+        });
+
+    });
+
+    // ****************************************
+    // Delete a Customer
+    // ****************************************
+
+    $("#delete-btn").click(function () {
+
+        var customer_id = $("#customer_id").val();
+
+        var ajax = $.ajax({
+            type: "DELETE",
+            url: "/customers/" + customer_id,
+            contentType:"application/json",
+            data: ''
+        });
+
+        ajax.done(function(res){
+            clear_form_data();
+            flash_message("Customer with ID [" + res.id + "] has been Deleted!");
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!");
+        });
+    });
+
+    // ****************************************
+    // Clear the form
+    // ****************************************
+
+    $("#clear-btn").click(function () {
+        $("#customer_id").val("");
+        clear_form_data();
+    });
+
+    // ****************************************
+    // Search for a Customer
+    // ****************************************
+
+    $("#search-btn").click(function () {
+
+        var firstname = $("#customer_first_name").val();
+        var lastname = $("#customer_last_name").val();
+        var email = $("#customer_email").val();
+        var subscribed = $("#customer_subscribed").val() == "true";
+        var address1 = $("#customer_address_1").val();
+        var address2 = $("#customer_address_2").val();
+        var city = $("#customer_city").val();
+        var province = $("#customer_province").val();
+        var country = $("#customer_country").val();
+        var zip = $("#customer_zip").val();
+
+        var queryString = "";
+
+        if (firstname) {
+            queryString += 'firstname=' + firstname;
+        }
+        if (lastname) {
+            if (queryString.length > 0) {
+                queryString += '&lastname=' + lastname;
+            } else {
+                queryString += 'lastname=' + lastname;
+            }
+        }if (email) {
+            if (queryString.length > 0) {
+                queryString += '&email=' + email;
+            } else {
+                queryString += 'email=' + email;
+            }
+        }if (subscribed) {
+            if (queryString.length > 0) {
+                queryString += '&subscribed=' + subscribed;
+            } else {
+                queryString += 'subscribed=' + subscribed;
+            }
+        }if (address1) {
+            if (queryString.length > 0) {
+                queryString += '&address1=' + address1;
+            } else {
+                queryString += 'address1=' + address1;
+            }
+        }if (address2) {
+            if (queryString.length > 0) {
+                queryString += '&address2=' + address2;
+            } else {
+                queryString += 'address2=' + address2;
+            }
+        }if (city) {
+            if (queryString.length > 0) {
+                queryString += '&city=' + city;
+            } else {
+                queryString += 'city=' + city;
+            }
+        }if (province) {
+            if (queryString.length > 0) {
+                queryString += '&province=' + province;
+            } else {
+                queryString += 'province=' + province;
+            }
+        }if (country) {
+            if (queryString.length > 0) {
+                queryString += '&country=' + country;
+            } else {
+                queryString += 'country=' + country;
+            }
+        }if (zip) {
+            if (queryString.length > 0) {
+                queryString += '&zip=' + zip;
+            } else {
+                queryString += 'zip=' + zip;
+            }
+        }
+
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/customers?" + queryString,
+            contentType:"application/json",
+            data: ''
+        });
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            $("#search_results").empty();
+            $("#search_results").append('<table class="table-striped">');
+            var header = '<tr>';
+            header += '<th style="width:10%">ID</th>';
+            header += '<th style="width:10%">First Name</th>';
+            header += '<th style="width:10%">Last Name</th>';
+            header += '<th style="width:10%">Email</th>';
+            header += '<th style="width:10%">Subscribed</th>';
+            header += '<th style="width:10%">Address 1</th>';
+            header += '<th style="width:10%">Address 2</th>';
+            header += '<th style="width:10%">City</th>';
+            header += '<th style="width:10%">Province</th>';
+            header += '<th style="width:10%">Country</th>';
+            header += '<th style="width:10%">Zip</th></tr>';
+            $("#search_results").append(header);
+            for(var i = 0; i < res.length; i++) {
+                var customer = res[i];
+                var row = "<tr><td>"+customer._id+"</td><td>"+customer.firstname+"</td><td>"+customer.lastname+"</td><td>"+customer.email+"</td><<td>"+customer.subscribed+"</td><td>"+customer.address.address1+"</td><td>"+customer.address.address2+"</td><td>"+customer.address.city+"</td><td>"+customer.address.province+"</td><td>"+customer.address.country+"</td><td>"+customer.address.zip+"</td>/tr>";
+                $("#search_results").append(row);
+            }
+
+            $("#search_results").append('</table>');
+
+            flash_message("Success");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+
+    });
+
+});
+
+</script>

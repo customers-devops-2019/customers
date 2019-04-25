@@ -17,6 +17,7 @@ from .models import Customer, DataValidationError
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'the customer isnt always right... Shhhh'
 app.config['LOGGING_LEVEL'] = logging.INFO
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 api = Api(app)
 

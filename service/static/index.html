@@ -1,101 +1,97 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Customer Demo RESTful Service</title>
+    <title>Pet Demo RESTful Service</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="static/stylesheets/style.css">
+    <link rel="stylesheet" href="static/css/blue_bootstrap.min.css">
+    <script type="text/javascript" src = "static/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="static/js/rest_api.js"></script>
   </head>
   <body>
-      <table>
-		<tr>
-            <td style= "width:30%;">
-              <img class = "newappIcon" src="static/images/newapp-icon.png" alt="application icon">
-            </td>
-			<td>
-				<h1 id = "message">Customer Demo REST API Service</h1>
-				<p class='description'>
-				GET <a href="/customers" id = "get_customers">/customers</a> to see all the customers.
-				<br><br>
-                GET <a href="/customers?subscribed=true">/customers?subscribed=true</a> to see all of the customers with subscribed to true.
-				<br><br>
-				GET /customers/{id} retrieves a customer from the DB using an ID.
-				<br><br>
-				PUT /customers/{id} updates a customer using an ID.
-				<br><br>
-				DELETE /customers/{id} removes a customer from the DB using an ID.
-				<br><br>
-				POST /customers creates an new customer.
-                <p>Example Data:</p>
-                <pre>
-                  {
-              	"firstname":"John",
-              	"lastname":"Doe",
-              	"email":"jdoe@email.com",
-              	"subscribed": true,
-              	"address": {
-              		"address1": "1 Second St",
-              		"address2":"1E",
-              		"city":"New York",
-              		"province":"NY",
-              		"country":"USA",
-              		"zip":"24233"
-              	}
-              }
-                </pre>
-                Try it now:
-                <form id="create_customers" action="/customers" method="post" enctype="application/json">
-                    <input type="hidden" name="available" value="True" />
-                    <div>
-                      <label for="firstname">What is the first name of the customer?</label>
-                      <input name="firstname" id="firstname" value="John">
-                    </div>
-                    <div>
-                      <label for="lastname">What is the last name of the customer?</label>
-                      <input name="lastname" id="lastname" value="Doe">
-                    </div>
-                    <div>
-                      <label for="email">What is the email of the customer?</label>
-                      <input name="email" id="email" value="jdoe@email.com">
-                    </div>
-                    <div>
-                      <label for="subscribed">Does the customer want to be subscribed?</label>
-                      <select name="subscribed">
-                        <option value="true">True</option>
-                        <option value="false">False</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label for="address1">What is the address1 of the customer?</label>
-                      <input name="address1" id="address1" value="1 Second St">
-                    </div>
-                    <div>
-                      <label for="address2">What is the address2 of the customer?</label>
-                      <input name="address2" id="address2" value="1E">
-                    </div>
-                    <div>
-                      <label for="province">What is the province of the customer?</label>
-                      <input name="province" id="province" value="NY">
-                    </div>
-                    <div>
-                      <label for="city">What is the city of the customer?</label>
-                      <input name="city" id="city" value="New York">
-                    </div>
-                    <div>
-                      <label for="zip">What is the zip of the customer?</label>
-                      <input name="zip" id="zip" value="24233">
-                    </div>
-                    <div>
-                      <label for="country">What is the country of the customer?</label>
-                      <input name="country" id="country" value="USA">
-                    </div>
-                    <div>
-                      <button id="submit">Create Customer</button>
-                    </div>
-                </form>
-			</td>
-		</tr>
-	</table>
+    <div class="container">
+        <div class="page-header">
+            <h1>Pet Demo REST API Service</h1>
+        </div>
+
+        <!-- Flash Message -->
+        <div class="table-responsive">
+          <table class="table">
+            <tr><td>Status:</td><td><span id="flash_message"></span></td></tr>
+          </table>
+        </div>
+
+        <div class="col-md-12" id="form_data">
+          Create, Retrieve, Update, and Delete a Pet:
+          <div class="well">
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="pet_id">Pet ID:</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="pet_id" placeholder="Enter ID of Pet">
+                </div>
+                <div class="col-sm-4">
+                  <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
+                  <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+                </div>
+              </div>
+            </div> <!-- form div -->
+
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="pet_name">Name:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="pet_name" placeholder="Enter name for Pet">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="pet_category">Category:</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="pet_category" placeholder="Enter category for Pet">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="pet_available">Available:</label>
+                <div class="col-sm-10">
+                  <select class="form-control" id="pet_available">
+                      <option value="true" selected>True</option>
+                      <option value="false">False</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                  <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
+                  <button type="submit" class="btn btn-success" id="create-btn">Create</button>
+                  <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+                </div>
+              </div>
+          </div> <!-- form div -->
+        </div>
+
+        <!-- Search Results -->
+        <div class="table-responsive col-md-12" id="search_results">
+          <table class="table-striped">
+            <thead>
+            <tr>
+                <th class="col-md-1">ID</th>
+                <th class="col-md-4">Name</th>
+                <th class="col-md-4">Category</th>
+                <th class="col-md-3">Available</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+
+        <footer>
+          <br><br>
+          <p>&copy; NYU DevOps Company 2017</p>
+        </footer>
+        </div><!--/span-->
+     </div><!--/row-->
+
+  </div><!-- container -->
   </body>
 </html>

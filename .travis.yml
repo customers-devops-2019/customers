@@ -1,3 +1,5 @@
+sudo: required
+
 services:
   - docker
 
@@ -16,9 +18,12 @@ install: pip install -r requirements.txt
 before_script:
   - curl -X GET http://localhost:5984/
   - curl -X PUT http://admin:pass@localhost:5984/test
+  - python run.py &  # start a Web server in the background
+  - sleep 3 # give Web server some time to bind to sockets, etc
 
 script:
   - nosetests
+  - behave
 
 after_success:
-  - sonar-scanner -X
+  - codecov

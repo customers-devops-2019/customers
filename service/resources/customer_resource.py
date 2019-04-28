@@ -30,7 +30,7 @@ class CustomerResource(Resource):
         app.logger.info("Request to Retrieve a customer with id [%s]", customer_id)
         customer = Customer.find(customer_id)
         if not customer:
-            abort(status.HTTP_404_NOT_FOUND, "Customer with id '{}' was not found.".format(customer_id))
+            abort(status.HTTP_404_NOT_FOUND, "Customer WAS NOT FOUND ")
         return customer.serialize(), status.HTTP_200_OK
 
     def put(self, customer_id):

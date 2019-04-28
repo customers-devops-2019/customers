@@ -32,7 +32,7 @@ class TestCustomerServer(unittest.TestCase):
     def setUp(self):
         """ Initialize the Cloudant database """
         self.app = app.test_client()
-        Customer.init_db("tests")
+        Customer.init_db("servertest")
         Customer.remove_all()
 
     def _create_customers(self, count):

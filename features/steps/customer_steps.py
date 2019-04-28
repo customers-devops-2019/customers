@@ -14,7 +14,33 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions
 
-WAIT_SECONDS = int(getenv('WAIT_SECONDS', '30'))
+WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
+
+@given('the following customers')
+def step_impl(context):
+    """ Delete all Customers and load new ones """
+    headers = {'Content-Type': 'application/json'}
+    context.resp = requests.delete(context.base_url + '/customers/reset', headers=headers)
+    expect(context.resp.status_code).to_equal(204)
+    create_url = context.base_url + '/customers'
+    for row in context.table:
+        data = {
+            "firstname": row['firstname'],
+            "lastname": row['lastname'],
+            "email": row['email'],
+            "subscribed": row['subscribed'] in ['True', 'true', '1'],
+            "address": {
+                "address1": row['address1'],
+                "address2": row['address2'],
+                "city": row['city'],
+                "province": row['province'],
+                "country": row['country'],
+                "zip": row['zip']
+                }
+            }
+        payload = json.dumps(data)
+        context.resp = requests.post(create_url, data=payload, headers=headers)
+        expect(context.resp.status_code).to_equal(201)
 
 @when('I visit the "home page"')
 def step_impl(context):
@@ -32,3 +58,13 @@ def step_impl(context, message):
 def step_impl(context, message):
     error_msg = "I should not see '%s' in '%s'" % (message, context.resp.text)
     ensure(message in context.resp.text, False, error_msg)
+
+@when('I press the "{button}" button')
+def step_impl(context, button):
+    button_id = button.lower() + '-btn'
+    context.driver.find_element_by_id(button_id).click()
+
+@then('I should see "{name}" in the results')
+def step_impl(context, name):
+    element = context.driver.find_element_by_id('search_results')
+    expect(element.text).to_contain(name)

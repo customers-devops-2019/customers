@@ -26,6 +26,7 @@ from service.resources import NoResource
 from service.resources import CustomerCollection
 from service.resources import HomePage
 from service.resources import UnsubscribeAction
+from service.resources import ResetAction
 from service.resources import Address
 
 api.add_resource(HomePage, '/')
@@ -33,6 +34,7 @@ api.add_resource(CustomerCollection, '/customers')
 api.add_resource(CustomerResource, '/customers/<customer_id>')
 api.add_resource(NoResource, '/customers/')
 api.add_resource(UnsubscribeAction, '/customers/<customer_id>/unsubscribe')
+api.add_resource(ResetAction, '/customers/reset')
 api.add_resource(Address, '/customers/<customer_id>/address')
 
 # Set up logging for production

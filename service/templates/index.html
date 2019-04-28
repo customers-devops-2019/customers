@@ -28,12 +28,14 @@
             <div class="form-horizontal">
               <div class="form-group">
                 <label class="control-label col-sm-2" for="customer_id">Customer ID:</label>
-                <div class="col-sm-6">
+                <div class="col-sm-5">
                   <input type="text" class="form-control" id="customer_id" placeholder="Enter ID of Customer">
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                   <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
                   <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+                  <button type="submit" class="btn btn-warning" id="unsubscribe-btn">Unsubscribe</button>
+                  <button type="submit" class="btn btn-primary" id="address-btn">Address</button>
                 </div>
               </div>
             </div> <!-- form div -->
@@ -166,7 +168,7 @@
     // Updates the form with data from the response
     function update_form_data(res) {
       console.log(res);
-        $("#customer_id").val(res.id);
+        $("#customer_id").val(res._id);
         $("#customer_first_name").val(res.firstname);
         $("#customer_last_name").val(res.lastname);
         $("#customer_email").val(res.email);
@@ -305,17 +307,77 @@
     });
 
     // ****************************************
+    // Unsubscribe a Customer
+    // ****************************************
+
+    $("#unsubscribe-btn").click(function () {
+
+        var customer_id = $("#customer_id").val();
+        if (customer_id == '') {
+            flash_message("Please enter a Customer ID");
+            return 0;
+        }
+
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/customers/" + customer_id + "/unsubscribe",
+            contentType:"application/json"
+        });
+
+        ajax.done(function(res){
+            update_form_data(res);
+            flash_message("Success");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+
+    });
+
+
+    // ****************************************
     // Retrieve a Customer
+    // ****************************************
+
+    $("#address-btn").click(function () {
+        var customer_id = $("#customer_id").val();
+        if (customer_id == '') {
+            flash_message("Please enter a Customer ID");
+            return 0;
+        }
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/customers/" + customer_id + "/address",
+            contentType:"application/json",
+            data: ''
+        });
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            var add = {};
+            add._id = customer_id;
+            add.address = res;
+            update_form_data(add);
+            flash_message("Success");
+        });
+
+        ajax.fail(function(res){
+            clear_form_data();
+            console.log("ERROR IS");
+            console.log(res);
+            flash_message(res.responseJSON.message);
+        });
+
+    });
+
+    // ****************************************
+    // Get Customer Address
     // ****************************************
 
     $("#retrieve-btn").click(function () {
         var customer_id = $("#customer_id").val();
-        
-        if (customer_id =='') {
-          customer_id = 'undefined';
-          console.log("customer id is");
-          console.log(customer_id);
-        }
+
         var ajax = $.ajax({
             type: "GET",
             url: "/customers/" + customer_id,
@@ -359,7 +421,7 @@
         });
 
         ajax.fail(function(res){
-            flash_message("Server error!");
+            flash_message(res.responseJSON.message);
         });
     });
 

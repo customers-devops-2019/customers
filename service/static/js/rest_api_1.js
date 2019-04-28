@@ -149,7 +149,6 @@ $(function () {
     // ****************************************
 
     $("#retrieve-btn").click(function () {
-        alert("hi");
         var customer_id = $("#customer_id").val();
 
         var ajax = $.ajax({

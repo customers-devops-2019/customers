@@ -1,3 +1,5 @@
+sudo: required
+
 services:
   - docker
 
@@ -24,4 +26,4 @@ script:
   - behave
 
 after_success:
-  - sonar-scanner -X
+  - codecov

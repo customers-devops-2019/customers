@@ -69,6 +69,13 @@ def step_impl(context, name):
     element = context.driver.find_element_by_id('search_results')
     expect(element.text).to_contain(name)
 
+@then('I should not see "{name}" in the results')
+def step_impl(context, name):
+    element = context.driver.find_element_by_id('search_results')
+    error_msg = "I should not see '%s' in '%s'" % (name, element.text)
+    ensure(name in element.text, False, error_msg)
+
+
 @when('I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
     element_id = 'customer_' + element_name.lower()
@@ -76,7 +83,7 @@ def step_impl(context, element_name, text_string):
     element.clear()
     element.send_keys(text_string)
 
-@then(u'I should see the message "{message}"')
+@then('I should see the message "{message}"')
 def step_impl(context, message):
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(
         expected_conditions.text_to_be_present_in_element(
@@ -86,6 +93,18 @@ def step_impl(context, message):
     )
     expect(found).to_be(True)
 
+
+@then('I should see "{text}" in the "{element_name}" dropdown')
+def step_impl(context, text, element_name):
+    element_id = 'customer_' + element_name.lower()
+    element = Select(context.driver.find_element_by_id(element_id))
+    expect(element.first_selected_option.text).to_equal(text)
+
+@when('I select "{text}" in the "{element_name}" dropdown')
+def step_impl(context, text, element_name):
+    element_id = 'customer_' + element_name.lower()
+    element = Select(context.driver.find_element_by_id(element_id))
+    element.select_by_visible_text(text)
 
 ##################################################################
 # These two function simulate copy and paste

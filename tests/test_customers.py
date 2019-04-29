@@ -34,7 +34,7 @@ class TestCustomers(unittest.TestCase):
 
     def setUp(self):
         """ Initialize the Cloudant database """
-        Customer.init_db("test")
+        Customer.init_db("customertest")
         Customer.remove_all()
 
     def test_create_a_customer(self):

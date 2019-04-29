@@ -167,7 +167,6 @@
 
     // Updates the form with data from the response
     function update_form_data(res) {
-      console.log(res);
         $("#customer_id").val(res._id);
         $("#customer_first_name").val(res.firstname);
         $("#customer_last_name").val(res.lastname);
@@ -364,8 +363,6 @@
 
         ajax.fail(function(res){
             clear_form_data();
-            console.log("ERROR IS");
-            console.log(res);
             flash_message(res.responseJSON.message);
         });
 
@@ -393,8 +390,6 @@
 
         ajax.fail(function(res){
             clear_form_data();
-            console.log("ERROR IS");
-            console.log(res);
             flash_message(res.responseJSON.message);
         });
 

@@ -188,7 +188,7 @@ $(function () {
 
         ajax.done(function(res){
             clear_form_data();
-            flash_message("Customer with ID [" + res.id + "] has been Deleted!");
+            flash_message("Customer Deleted!");
         });
 
         ajax.fail(function(res){

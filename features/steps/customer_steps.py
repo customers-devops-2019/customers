@@ -7,6 +7,7 @@ from os import getenv
 import logging
 import json
 import requests
+import ast
 from behave import *
 from compare import expect, ensure
 from selenium.webdriver.common.by import By
@@ -40,6 +41,9 @@ def step_impl(context):
             }
         payload = json.dumps(data)
         context.resp = requests.post(create_url, data=payload, headers=headers)
+        if row['firstname'] == "John":
+            tempdict = context.resp.json()
+            context.john_id = tempdict["_id"]
         expect(context.resp.status_code).to_equal(201)
 
 @when('I visit the "home page"')
@@ -61,7 +65,7 @@ def step_impl(context, message):
 
 @when('I press the "{button}" button')
 def step_impl(context, button):
-    button_id = button.lower() + '-btn'
+    button_id = button.lower().replace(" ", "_") + '-btn'
     context.driver.find_element_by_id(button_id).click()
 
 @then('I should see "{name}" in the results')
@@ -79,6 +83,8 @@ def step_impl(context, name):
 @when('I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
     element_id = 'customer_' + element_name.lower().replace(" ", "_")
+    if element_name == "ID":
+        text_string = context.john_id
     element = context.driver.find_element_by_id(element_id)
     #element.clear()
     element.send_keys(text_string)
@@ -96,13 +102,13 @@ def step_impl(context, message):
 
 @then('I should see "{text}" in the "{element_name}" dropdown')
 def step_impl(context, text, element_name):
-    element_id = 'customer_' + element_name.lower()
+    element_id = 'customer_' + element_name.lower().replace(" ", "_")
     element = Select(context.driver.find_element_by_id(element_id))
     expect(element.first_selected_option.text).to_equal(text)
 
 @when('I select "{text}" in the "{element_name}" dropdown')
 def step_impl(context, text, element_name):
-    element_id = 'customer_' + element_name.lower()
+    element_id = 'customer_' + element_name.lower().replace(" ", "_")
     element = Select(context.driver.find_element_by_id(element_id))
     element.select_by_visible_text(text)
 
@@ -111,7 +117,7 @@ def step_impl(context, text, element_name):
 ##################################################################
 @when('I copy the "{element_name}" field')
 def step_impl(context, element_name):
-    element_id = 'customer_' + element_name.lower()
+    element_id = 'customer_' + element_name.lower().replace(" ", "_")
     element = context.driver.find_element_by_id(element_id)
     # element = WebDriverWait(context.driver, WAIT_SECONDS).until(
     #     expected_conditions.presence_of_element_located((By.ID, element_id))
@@ -121,7 +127,7 @@ def step_impl(context, element_name):
 
 @when('I paste the "{element_name}" field')
 def step_impl(context, element_name):
-    element_id = 'customer_' + element_name.lower()
+    element_id = 'customer_' + element_name.lower().replace(" ", "_")
     element = context.driver.find_element_by_id(element_id)
     # element = WebDriverWait(context.driver, WAIT_SECONDS).until(
     #     expected_conditions.presence_of_element_located((By.ID, element_id))
@@ -139,10 +145,10 @@ def step_impl(context, element_name):
 ##################################################################
 @when('I press the "{button}" customer button')
 def step_impl(context, button):
-    button_id = button.lower() + '-btn'
+    button_id = button.lower().replace(" ", "_") + '-btn'
 
-    if button == "retrieve":
-        time.sleep(6)
+    if button.lower() == "retrieve":
+        # time.sleep(6)
         element = context.driver.find_element_by_id('customer_id').text
 
         found = WebDriverWait(context.driver, WAIT_SECONDS).until(
@@ -154,3 +160,33 @@ def step_impl(context, button):
         context.driver.find_element_by_id(button_id).click()
     else:
         context.driver.find_element_by_id(button_id).click()
+
+##################################################################
+# This code works because of the following naming convention:
+# The id field for text input in the html is the element name
+# prefixed by 'recommendation_' so the Name field has an id='recommendation_name'
+# We can then lowercase the name and prefix with recommendation_ to get the id
+##################################################################
+
+@then('I should see "{text_string}" in the "{element_name}" field')
+def step_impl(context, text_string, element_name):
+    element_id = 'customer_' + element_name.lower().replace(" ", "_")
+    element = context.driver.find_element_by_id(element_id)
+    expect(element.get_attribute('value')).to_equal(text_string)
+    # found = WebDriverWait(context.driver, WAIT_SECONDS).until(
+    #     expected_conditions.text_to_be_present_in_element_value(
+    #         (By.ID, element_id),
+    #         text_string
+    #     )
+    # )
+    # expect(found).to_be(True)
+
+@when('I change "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = 'customer_' + element_name.lower().replace(" ", "_")
+    element = context.driver.find_element_by_id(element_id)
+    # element = WebDriverWait(context.driver, WAIT_SECONDS).until(
+    #     expected_conditions.presence_of_element_located((By.ID, element_id))
+    # )
+    element.clear()
+    element.send_keys(text_string)

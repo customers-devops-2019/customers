@@ -5,11 +5,10 @@ Feature: The Customer service back-end
 
 Background:
     Given the following customers
-      | id | firstname | lastname | email        | subscribed | address1  | address2 | city    | province | country | zip    |
-      |   | John      | Doe      | jd@email.com  | True       | 2 Main St | 3B       | Toronto | Ontario  | Canada  | MH48J4 |
-      |   | Steve     | Nadh     | sn@email.com  | True       | 1 Main St | 1C       | Toronto | Ontario  | Canada  | MH48J3 |
-      |   | Dave     | Jones     | dj@email.com  | True       | 1 Main St | 3B       | Brooklyn | New York  | USA  | 11201 |
-
+      | firstname | lastname | email         | subscribed | address1  | address2 | city     | province | country | zip    |
+      | John      | Doe      | jd@email.com  | True       | 2 Main St | 3B       | Toronto  | Ontario  | Canada  | MH48J4 |
+      | Steve     | Nadh     | sn@email.com  | True       | 1 Main St | 1C       | Toronto  | Ontario  | Canada  | MH48J3 |
+      | Dave      | Jones    | dj@email.com  | True       | 1 Main St | 3B       | Brooklyn | New York | USA     | 11201  |
 
 
 
@@ -27,7 +26,6 @@ Scenario: Create a Customer
    And I press the "Create" button
    Then I should see the message "Success"
 
-
 Scenario: List all customers
     When I visit the "Home Page"
     And I press the "Search" button
@@ -35,7 +33,7 @@ Scenario: List all customers
     And I should see "Steve" in the results
     And I should see "Dave" in the results
 
-  Scenario: List all people from Ontario
+Scenario: List all people from Ontario
     When I visit the "Home Page"
     And I press the "Clear" button
     And I set the "Province" to "Ontario"
@@ -43,3 +41,20 @@ Scenario: List all customers
     Then I should see "John" in the results
     And I should see "Steve" in the results
     And I should not see "Dave" in the results
+
+Scenario: Update a Customer
+    When I visit the "Home Page"
+    And I set the "ID" to "John"
+    And I press the "Retrieve" button
+    Then I should see "John" in the "First Name" field
+    And I should see "Doe" in the "Last Name" field
+    When I change "Last Name" to "Wick"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I copy the "ID" field
+    And I press the "Clear" button
+    And I paste the "ID" field
+    And I press the "Retrieve" button
+    Then I should see "John" in the "First Name" field
+    And I should see "Wick" in the "Last Name" field
+    And I should not see "Doe" in the results

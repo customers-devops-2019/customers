@@ -78,9 +78,9 @@ def step_impl(context, name):
 
 @when('I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
-    element_id = 'customer_' + element_name.lower()
+    element_id = 'customer_' + element_name.lower().replace(" ", "_")
     element = context.driver.find_element_by_id(element_id)
-    element.clear()
+    #element.clear()
     element.send_keys(text_string)
 
 @then('I should see the message "{message}"')

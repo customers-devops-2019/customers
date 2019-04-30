@@ -18,6 +18,15 @@ Scenario: The server is running
     Then I should see "Customer Demo RESTful Service" in the title
     And I should not see "404 Not Found"
 
+Scenario: Create a Customer
+   When I visit the "Home Page"
+   And I set the "First Name" to "Isabel"
+   And I set the "Last Name" to "Smith"
+   And I set the "Email" to "ismith@test.com"
+   And I set the "Subscribed" to "True"
+   And I press the "Create" button
+   Then I should see the message "Success"
+
 
 Scenario: List all customers
     When I visit the "Home Page"

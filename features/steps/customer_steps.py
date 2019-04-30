@@ -7,7 +7,6 @@ from os import getenv
 import logging
 import json
 import requests
-import ast
 from behave import *
 from compare import expect, ensure
 from selenium.webdriver.common.by import By

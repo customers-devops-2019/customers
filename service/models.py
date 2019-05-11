@@ -331,7 +331,7 @@ class Customer(object):
         vcap_services = {}
         # Try and get VCAP from the environment or a file if developing
          if 'BINDING_CLOUDANT' in os.environ:
-            Pet.logger.info('Found Kubernetes Bindings')
+            Customer.logger.info('Found Kubernetes Bindings')
             creds = json.loads(os.environ['BINDING_CLOUDANT'])
             vcap_services = {"cloudantNoSQLDB": [{"credentials": creds}]}
         else:

@@ -37,6 +37,13 @@ class TestCustomers(unittest.TestCase):
         Customer.init_db("customertest")
         Customer.remove_all()
 
+    def tearDown(self):
+        """ Initialize the Cloudant database """
+        try:
+            Customer.remove_all()
+        except:
+            pass
+
     def test_create_a_customer(self):
         """ Create a customer and assert that it exists """
         customer = Customer(firstname="John", lastname="Doe", email="fake1@email.com",
@@ -400,7 +407,7 @@ class TestCustomers(unittest.TestCase):
                  subscribed=False, address1="123 Main St", address2="1B", city="New York",
                  country="USA", province="NY", zip="12310").save()
         Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com",
-                 subscribed=False, address1="124 Main St", address2="1E", city="New York",
+                 subscribed=False, address1="124 Main St", address2="1E", city="Miami",
                  country="USA", province="NY", zip="12310").save()
         customers = Customer.find_by_city("New York")
         self.assertEqual(customers[0].email, "fake1@email.com")
@@ -421,7 +428,7 @@ class TestCustomers(unittest.TestCase):
                  country="USA", province="NY", zip="12310").save()
         Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com",
                  subscribed=False, address1="124 Main St", address2="1E", city="New York",
-                 country="USA", province="NY", zip="12310").save()
+                 country="USA", province="WA", zip="12310").save()
         customers = Customer.find_by_province("NY")
         self.assertEqual(customers[0].email, "fake1@email.com")
         self.assertEqual(customers[0].firstname, "John")
@@ -441,7 +448,7 @@ class TestCustomers(unittest.TestCase):
                  country="USA", province="NY", zip="12310").save()
         Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com",
                  subscribed=False, address1="124 Main St", address2="1E", city="New York",
-                 country="USA", province="NY", zip="12310").save()
+                 country="Italy", province="CA", zip="12310").save()
         customers = Customer.find_by_country("USA")
         self.assertEqual(customers[0].email, "fake1@email.com")
         self.assertEqual(customers[0].firstname, "John")
@@ -461,7 +468,7 @@ class TestCustomers(unittest.TestCase):
                  country="USA", province="NY", zip="12310").save()
         Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com",
                  subscribed=False, address1="124 Main St", address2="1E", city="New York",
-                 country="USA", province="NY", zip="12310").save()
+                 country="USA", province="NY", zip="16438").save()
         customers = Customer.find_by_zip("12310")
         self.assertEqual(customers[0].email, "fake1@email.com")
         self.assertEqual(customers[0].firstname, "John")
@@ -480,7 +487,7 @@ class TestCustomers(unittest.TestCase):
                  subscribed=False, address1="123 Main St", address2="1B", city="New York",
                  country="USA", province="NY", zip="12310").save()
         Customer(firstname="Sarah", lastname="Sally", email="fake2@email.com",
-                 subscribed=False, address1="124 Main St", address2="1E", city="New York",
+                 subscribed=True, address1="124 Main St", address2="1E", city="New York",
                  country="USA", province="NY", zip="12310").save()
         customers = Customer.find_by_subscribed(False)
         self.assertEqual(customers[0].email, "fake1@email.com")

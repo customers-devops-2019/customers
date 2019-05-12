@@ -7,7 +7,7 @@ Background:
     Given the following customers
       | firstname | lastname | email         | subscribed | address1  | address2 | city     | province | country | zip    |
       | John      | Doe      | jd@email.com  | True       | 2 Main St | 3B       | Toronto  | Ontario  | Canada  | MH48J4 |
-      | Steve     | Nadh     | sn@email.com  | True       | 1 Main St | 1C       | Toronto  | Ontario  | Canada  | MH48J3 |
+      | Steve     | Park     | sn@email.com  | True       | 1 Main St | 1C       | Toronto  | Ontario  | Canada  | MH48J3 |
       | Dave      | Jones    | dj@email.com  | True       | 1 Main St | 3B       | Brooklyn | New York | USA     | 11201  |
 
 
@@ -76,8 +76,6 @@ Scenario: Delete a Customer
     And I press the "Search" button
     Then I should see "John" in the results
     When I set the "ID" to "John"
-    And I copy the "ID" field
-    And I paste the "ID" field
     When I press the "Delete" button
     Then I should see the message "Success"
     When I press the "Clear" button

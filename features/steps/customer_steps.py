@@ -180,6 +180,7 @@ def step_impl(context, text_string, element_name):
     element_id = 'customer_' + element_name.lower().replace(" ", "_")
     # element = context.driver.find_element_by_id(element_id)
     # expect(element.get_attribute('value')).to_equal(text_string)
+    time.sleep(3)
     found = WebDriverWait(context.driver, WAIT_SECONDS).until(
         expected_conditions.text_to_be_present_in_element_value(
             (By.ID, element_id),

@@ -15,7 +15,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions
 import time
 
-WAIT_SECONDS = int(getenv('WAIT_SECONDS', '10'))
+WAIT_SECONDS = int(getenv('WAIT_SECONDS', '15'))
 
 @given('the following customers')
 def step_impl(context):

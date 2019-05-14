@@ -396,6 +396,21 @@ class TestCustomerServer(unittest.TestCase):
         resp = self.app.get('/customers/10')
         self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
 
+    def test_no_resource_get(self):
+        """ Test No Resource Get """
+        resp = self.app.get('/customers/')
+        self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
+
+    def test_no_resource_put(self):
+        """ Test No Resource Put """
+        resp = self.app.put('/customers/')
+        self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
+
+    def test_no_resource_delete(self):
+        """ Test No Resource Delete """
+        resp = self.app.delete('/customers/')
+        self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
+
     def test_resource_not_found_update(self):
         """ Test Error Update Not Found """
         # create a customer to update

@@ -59,18 +59,6 @@ Scenario: Update a Customer
     And I should see "Wick" in the "Last Name" field
     And I should not see "Doe" in the results
 
-Scenario: Unsubscribe a customer
-    When I visit the "Home Page"
-    And I press the "Clear" button
-    And I press the "Search" button
-    Then I should see "John" in the results
-    When I set the "ID" to "John"
-    And I copy the "ID" field
-    And I paste the "ID" field
-    And I press the "Unsubscribe" button
-    Then I should see the message "Success"
-    Then I should see "False" in the "Subscribed" dropdown
-
 Scenario: Delete a Customer
     When I visit the "Home Page"
     And I press the "Search" button
@@ -83,3 +71,15 @@ Scenario: Delete a Customer
     And I press the "Search" button
     Then I should see "Steve" in the results
     And I should not see "John" in the results
+
+Scenario: Unsubscribe a customer
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I press the "Search" button
+    Then I should see "John" in the results
+    When I set the "ID" to "John"
+    And I copy the "ID" field
+    And I paste the "ID" field
+    And I press the "Unsubscribe" button
+    Then I should see the message "Success"
+    Then I should see "False" in the "Subscribed" dropdown

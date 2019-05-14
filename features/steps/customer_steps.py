@@ -20,7 +20,7 @@ WAIT_SECONDS = int(getenv('WAIT_SECONDS', '25'))
 @given('the following customers')
 def step_impl(context):
     """ Delete all Customers and load new ones """
-    headers = {'Content-Type': 'application/json'}
+    headers = {'Content-Type': 'application/json', 'Cache-Control': 'no-cache'}
     context.resp = requests.delete(context.base_url + '/customers/reset', headers=headers)
     expect(context.resp.status_code).to_equal(204)
     create_url = context.base_url + '/customers'

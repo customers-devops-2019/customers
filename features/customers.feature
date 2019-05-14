@@ -76,10 +76,3 @@ Scenario: Update a Customer
     When I change "Last Name" to "Wick"
     And I press the "Update" button
     Then I should see the message "Success"
-    When I copy the "ID" field
-    And I press the "Clear" button
-    And I paste the "ID" field
-    And I press the "Retrieve" button
-    Then I should see "John" in the "First Name" field
-    And I should see "Wick" in the "Last Name" field
-    And I should not see "Doe" in the results

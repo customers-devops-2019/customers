@@ -42,23 +42,6 @@ Scenario: List all people from Ontario
     And I should see "Steve" in the results
     And I should not see "Dave" in the results
 
-Scenario: Update a Customer
-    When I visit the "Home Page"
-    And I set the "ID" to "John"
-    And I press the "Retrieve" button
-    Then I should see "John" in the "First Name" field
-    And I should see "Doe" in the "Last Name" field
-    When I change "Last Name" to "Wick"
-    And I press the "Update" button
-    Then I should see the message "Success"
-    When I copy the "ID" field
-    And I press the "Clear" button
-    And I paste the "ID" field
-    And I press the "Retrieve" button
-    Then I should see "John" in the "First Name" field
-    And I should see "Wick" in the "Last Name" field
-    And I should not see "Doe" in the results
-
 Scenario: Delete a Customer
     When I visit the "Home Page"
     And I press the "Search" button
@@ -83,3 +66,20 @@ Scenario: Unsubscribe a customer
     And I press the "Unsubscribe" button
     Then I should see the message "Success"
     Then I should see "False" in the "Subscribed" dropdown
+
+Scenario: Update a Customer
+    When I visit the "Home Page"
+    And I set the "ID" to "John"
+    And I press the "Retrieve" button
+    Then I should see "John" in the "First Name" field
+    And I should see "Doe" in the "Last Name" field
+    When I change "Last Name" to "Wick"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I copy the "ID" field
+    And I press the "Clear" button
+    And I paste the "ID" field
+    And I press the "Retrieve" button
+    Then I should see "John" in the "First Name" field
+    And I should see "Wick" in the "Last Name" field
+    And I should not see "Doe" in the results
